@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,32 +9,37 @@ class StorageService {
     shared = await SharedPreferences.getInstance();
   }
 
-  // =========================
-  //  LOGIN
-  // =========================
-
-  static Future saveUserLogin({
-    required int userid,
-    required String firstname,
-    required String secoundname,
-    required String useremail,
-    required String userpassword,
+  // حفظ الجلسة لأول مرة (عند اللوجين)
+  static Future<void> saveUserSession({
+    required String token,
+    required Map<String, dynamic> user,
   }) async {
     await shared.setBool("isLogin", true);
-    await shared.setString("firstname", firstname);
-    await shared.setString("secoundname", secoundname);
-    await shared.setInt("id", userid);
-    await shared.setString("email", useremail);
-    await shared.setString("password", userpassword);
+    await shared.setString("token", token);
+    await shared.setString("user", jsonEncode(user));
+  }
+
+  // تحديث بيانات المستخدم فقط (اللي جاية من Me)
+  static Future<void> updateUser(Map<String, dynamic> user) async {
+    await shared.setString("user", jsonEncode(user));
+  }
+
+  static String? getToken() {
+    return shared.getString("token");
+  }
+
+  static Map<String, dynamic>? getUser() {
+    String? userString = shared.getString("user");
+    if (userString == null) return null;
+    return jsonDecode(userString);
   }
 
   static bool isLogin() {
     return shared.getBool("isLogin") ?? false;
   }
+  
+  // Theme and Logout methods...
 
-  // =========================
-  //  THEME
-  // =========================
 
   static Future saveThemeMode(ThemeMode mode) async {
     await shared.setString("themeMode", mode.name);
@@ -59,7 +65,7 @@ class StorageService {
   // 🚪 LOGOUT
   // =========================
 
-  static Future clear() async {
+  static Future logout() async {
     await shared.clear();
   }
 }

@@ -1,7 +1,7 @@
 import 'package:defectscan/Routes/pages_routes.dart';
 import 'package:defectscan/controller/theme_cont/theme_cont.dart';
 import 'package:defectscan/core/service/sharedpreff.dart';
-import 'package:defectscan/features/themes/theme_comp/theme_comp.dart';
+import 'package:defectscan/features/themes/Themes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,10 +18,10 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: MyThemes.lightTheme,
-      darkTheme: greydarktheme.darkTheme,
+      theme: AppThemes.lightTheme,
+      darkTheme: AppThemes.greyDarkTheme,
       themeMode: StorageService.getThemeMode(),
-      // home: ThemeScreen(),
+      // home: OtpPage(),
       initialRoute: "/onboardingpage",
       getPages: routes,
     );

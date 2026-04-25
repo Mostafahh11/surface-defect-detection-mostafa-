@@ -35,7 +35,7 @@ class AccountCreatedPage extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                  Get.offAllNamed('mainscaffold');
+                  Get.offAllNamed('/loginpage');
                 },
                 child: const Text(
                   "Go to home page",

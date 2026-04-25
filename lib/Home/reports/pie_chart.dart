@@ -1,45 +1,40 @@
-import 'package:flutter/material.dart';
+import 'package:defectscan/controller/profile_cont/profile_cont.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ResultPieChart extends StatelessWidget {
-  const ResultPieChart({super.key});
+  final ProfileCont controller;
+  const ResultPieChart({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 180,
-      child: PieChart(
+    return Obx(() {
+      var latestScan = controller.scans.isNotEmpty
+          ? Map<String, dynamic>.from(controller.scans.last)
+          : <String, dynamic>{};
+
+      double passed = controller.scanPassed(latestScan).toDouble();
+      double defects = controller.scanDefect(latestScan).toDouble();
+
+      return PieChart(
         PieChartData(
-          centerSpaceRadius: 50,
-          sectionsSpace: 2,
           sections: [
             PieChartSectionData(
-              value: 40,
-              radius: 25,
-              showTitle: false,
-              color: Colors.pinkAccent,
-            ),
-            PieChartSectionData(
-              value: 30,
-              radius: 25,
-              showTitle: false,
+              value: passed,
               color: Colors.greenAccent,
-            ),
-            PieChartSectionData(
-              value: 20,
+              title: 'Passed',
               radius: 25,
-              showTitle: false,
-              color: Colors.orangeAccent,
             ),
             PieChartSectionData(
-              value: 10,
-              radius: 15,
-              showTitle: false,
-              color: Colors.grey[300],
+              value: defects,
+              color: Colors.pinkAccent,
+              title: 'Defects',
+              radius: 30,
             ),
           ],
         ),
-      ),
-    );
+      );
+    });
   }
 }

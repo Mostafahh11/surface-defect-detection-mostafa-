@@ -34,11 +34,7 @@ class Entryscreen extends StatelessWidget {
                 SizedBox(height: 10),
                 Text(
                   "Now Your finances are in one Place\n and Always under Control",
-                  style: TextStyle(
-                    color: Colors.black54,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 18,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w400, fontSize: 18),
                 ),
                 SizedBox(height: 70),
                 SizedBox(

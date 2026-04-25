@@ -1,60 +1,63 @@
-import 'package:defectscan/Model/user_model.dart';
+import 'package:defectscan/Api/api.dart';
 import 'package:defectscan/core/service/sharedpreff.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class LoginCont extends GetxController {
   final TextEditingController email = TextEditingController();
   final TextEditingController password = TextEditingController();
   final GlobalKey<FormState> formState = GlobalKey<FormState>();
+  bool locked = true;
+  RxBool isLoading = true.obs;
 
-  final List<User> users = [
-    User(
-      id: 0,
-      firstname: 'mostafa',
-      secoundname: 'hassan',
-      email: 'mostafahassan@gmail.com',
-      password: "1234",
-      phone: '01008838220',
-    ),
-  ];
+  Future<void> goHome() async {
+    if (!(formState.currentState?.validate() ?? false)) return;
 
-  void goHome() {
-    FocusManager.instance.primaryFocus?.unfocus();
-    if (formState.currentState?.validate() ?? false) {
-      User? foundUser = users.firstWhereOrNull(
-        (user) =>
-            user.email == email.text.trim() &&
-            user.password == password.text.trim(),
+    isLoading.value = true;
+    try {
+      final response = await ApiService.login(
+        email.text.trim(),
+        password.text.trim(),
       );
 
-      if (foundUser != null) {
-        StorageService.saveUserLogin(
-          userid: foundUser.id,
-          firstname: foundUser.firstname,
-          secoundname: foundUser.secoundname,
-          useremail: foundUser.email,
-          userpassword: foundUser.password,
-        );
-        Future.delayed(Duration(milliseconds: 200), () {
-          Get.offAllNamed('/mainscaffold');
-        });
-      } else {
-        Get.snackbar(
-          "Invalid Login",
-          "Email or Password is wrong",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-      }
+      await StorageService.saveUserSession(
+        token: response.token,
+        user: response.user.toJson(),
+      );
+
+      Get.offAllNamed('/mainscaffold');
+    } catch (error) {
+      Get.snackbar(
+        "ERROR",
+        error.toString(),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
     }
   }
 
-  @override
-  void onClose() {
-    email.dispose();
-    password.dispose();
-    super.onClose();
+  unlockeye() {
+    locked = !locked;
+    update();
+  }
+
+  Future<void> loginWithFacebook() async {
+    final result = await FacebookAuth.instance.login(
+      permissions: ['email', 'public_profile'],
+    );
+
+    if (result.status == LoginStatus.success) {
+      //   final accessToken = result.accessToken!.tokenString;
+
+      //      final userData = await FacebookAuth.instance.getUserData();
+
+      // print("TOKEN: $accessToken");
+      //  print("USER DATA: $userData");
+    } else {
+      //print("Login failed: ${result.status}");
+    }
   }
 }

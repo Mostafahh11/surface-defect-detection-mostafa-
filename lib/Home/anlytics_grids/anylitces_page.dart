@@ -1,128 +1,109 @@
 import 'package:defectscan/Home/anlytics_grids/analytics_widgets.dart';
 import 'package:defectscan/Home/reports/reports_page.dart';
-import 'package:defectscan/constants/colors/colors.dart';
+import 'package:defectscan/controller/profile_cont/profile_cont.dart';
+import 'package:defectscan/controller/statistics cont/stat.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AnalyticsGrid extends StatelessWidget {
   const AnalyticsGrid({super.key});
+
   @override
   Widget build(BuildContext context) {
+    final profcontroller = Get.isRegistered<ProfileCont>()
+        ? Get.find<ProfileCont>()
+        : Get.put(ProfileCont());
+    final statsController = Get.isRegistered<StatisticsController>()
+        ? Get.find<StatisticsController>()
+        : Get.put(StatisticsController());
+
     return SafeArea(
       child: Padding(
-        padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Analytics Result",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                InkWell(
-                  onTap: () {
-                    Get.to(() => DetailedReportPage());
-                  },
-                  child: Text(
-                    "See All",
-                    style: TextStyle(color: Colors.blue, fontSize: 15),
-                  ),
-                ),
-              ],
-            ),
-            Container(
-              height: 300,
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                shape: BoxShape.rectangle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.18),
-                    blurRadius: 10,
-                  ),
-                ],
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.grey[50],
-              ),
-              child: Column(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Obx(() {
+          final scans = profcontroller.scans;
+          final stats = statsController.stats;
+
+          return ListView(
+            children: [
+              const SizedBox(height: 10),
+
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Icon(Icons.trending_up, size: 30, color: Mycolors.org),
-                      SizedBox(width: 20),
-                      Text(
-                        "Quick insights",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
+                  const Text(
+                    "Analytics Results",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  Expanded(
-                    child: ListView.builder(
-                      physics: BouncingScrollPhysics(),
-                      itemCount: 4,
-                      itemBuilder: (context, index) => mylisttile(
-                        Icons.badge_outlined,
-                        "Best Performance",
-                        "You Have Achived 99.6% accuracy this Week\nthe Best record",
-                      ),
+                  InkWell(
+                    onTap: () => Get.to(() => DetailedReportPage()),
+                    child: const Text(
+                      "See All",
+                      style: TextStyle(color: Colors.blue, fontSize: 15),
                     ),
                   ),
                 ],
               ),
-            ),
-            Expanded(child: SizedBox()),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.3,
-              children: [
-                StatCard(
-                  avatarcolor: Colors.green.shade100,
-                  icondata: Icons.check_circle_outline,
-                  iconscolor: Colors.green,
-                  title: 'Passed',
-                  value: '1,234',
-                  trend: '+12%',
-                  color: Color(0xFFE1F5EC),
+
+              const SizedBox(height: 20),
+
+              // 1. Overall Performance Tile
+              ModernStatTile(
+                icon: Icons.auto_awesome,
+                title: "Overall Performance",
+                subtitle: "Average accuracy is ${statsController.accuracy}%",
+                caption: "Based on ${scans.length} recent inspections",
+                color: Colors.blue,
+              ),
+
+              // 2. Success Rate Tile
+              ModernStatTile(
+                icon: Icons.speed_rounded,
+                title: "Success Rate",
+                subtitle:
+                    "Your efficiency is at ${stats['success_rate'] ?? 0}%",
+                caption:
+                    "Passed ${statsController.passed} / Defects ${statsController.defects}",
+                color: Colors.green,
+              ),
+
+              // 3. Last Inspection Tile
+              ModernStatTile(
+                icon: Icons.update_rounded,
+                title: "Last Inspection",
+                subtitle: scans.isNotEmpty
+                    ? "Zone: ${scans.last['zone'] ?? 'A'}"
+                    : "No recent scans",
+                caption: scans.isNotEmpty
+                    ? "Score: ${profcontroller.scanAccuracy(Map<String, dynamic>.from(scans.last))}% - ${profcontroller.scanTitle(Map<String, dynamic>.from(scans.last))}"
+                    : "Start your first scan",
+                color: Colors.orange,
+              ),
+
+              const SizedBox(height: 20),
+
+              // 4. GridView (Always shows, even with zeros)
+              GridView.builder(
+                itemCount: profcontroller.dynamicStateCards.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.3,
                 ),
-                StatCard(
-                  avatarcolor: Colors.amber.shade200,
-                  icondata: Icons.warning_amber_outlined,
-                  iconscolor: Colors.amber,
-                  title: 'Defect',
-                  value: '76',
-                  trend: '-0.8%',
-                  color: Colors.amber.shade100,
-                ),
-                StatCard(
-                  avatarcolor: Colors.redAccent.shade100,
-                  icondata: Icons.trending_up_outlined,
-                  iconscolor: Colors.white60,
-                  title: 'Accuracy',
-                  value: '98.7%',
-                  trend: '+2.3%',
-                  color: Color(0xFFFFEBEA),
-                ),
-                StatCard(
-                  avatarcolor: Colors.indigo.shade100,
-                  icondata: Icons.history_outlined,
-                  iconscolor: Colors.black45,
-                  title: 'Batch Scan',
-                  value: '1.88s',
-                  trend: '-0.5%',
-                  color: Color(0xFFE8EAF6),
-                ),
-              ],
-            ),
-          ],
-        ),
+                itemBuilder: (context, i) {
+                  return StatCardWidget(
+                    data: profcontroller.dynamicStateCards[i],
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+            ],
+          );
+        }),
       ),
     );
   }

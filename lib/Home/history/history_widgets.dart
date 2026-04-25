@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:defectscan/constants/colors/colors.dart'; // عشان نستخدم Mycolors.org
 
 class DefectCategoryRow extends StatelessWidget {
   final IconData icon;
@@ -16,65 +17,95 @@ class DefectCategoryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color progressColor = percentage > 0.7
+        ? Colors.redAccent
+        : (percentage > 0.4 ? Mycolors.org : Colors.blueAccent);
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Column(
         children: [
           Row(
             children: [
+              // Icon Container
               Container(
-                height: 45,
-                width: 45,
+                height: 48,
+                width: 48,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(13),
-                  border: Border.all(color: Colors.grey, width: 1.8),
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                    width: 1.5,
+                  ),
                 ),
-                child: Icon(icon, size: 30),
+                child: Icon(
+                  icon,
+                  size: 28,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
               ),
               const SizedBox(width: 15),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 22,
+
+              // Label
+              Expanded(
+                flex: 3,
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const Spacer(),
+
+              // Cases Badge
               Container(
-                width: 100,
-                height: 40,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  color: Colors.grey[350],
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
                 ),
-                child: Center(
-                  child: Text(
-                    '$cases cases',
-                    style: const TextStyle(
-                      color: Colors.black54,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w500,
-                    ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: isDark ? Colors.grey[800] : Colors.grey[200],
+                ),
+                child: Text(
+                  '$cases cases',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.grey[300] : Colors.black54,
                   ),
                 ),
               ),
-              const Spacer(),
+
+              const SizedBox(width: 12),
+
+              // Percentage Text
               Text(
-                '${(percentage * 100).toInt()}%',
-                style: const TextStyle(
+                '${(percentage * 100).clamp(0, 100).toInt()}%',
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 18,
+                  fontSize: 16,
+                  color: progressColor, // اللون بيتبع حالة الخطورة
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          LinearProgressIndicator(
-            value: percentage,
-            backgroundColor: Colors.grey[200],
-            color: Colors.blue,
-            minHeight: 6,
+          const SizedBox(height: 12),
+
+          // Progress Indicator المحسن
+          ClipRRect(
             borderRadius: BorderRadius.circular(10),
+            child: LinearProgressIndicator(
+              value: percentage.clamp(0.0, 1.0), // Null Safety & Range check
+              backgroundColor: isDark ? Colors.grey[900] : Colors.grey[100],
+              valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+              minHeight: 8,
+            ),
           ),
         ],
       ),

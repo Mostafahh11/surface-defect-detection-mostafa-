@@ -1,85 +1,160 @@
+import 'dart:io';
+
 import 'package:defectscan/profile/profile_page/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class SettingsTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String? trailingText;
+// --- الـ Header بشكل فخم ونظيف ---
 
-  final void Function()? onTap;
-  const SettingsTile({
-    super.key,
-    required this.icon,
-    required this.title,
-    this.trailingText,
-    required this.onTap,
-  });
+import 'package:defectscan/controller/profile_cont/profile_cont.dart';
+
+class ProfileHeader extends StatelessWidget {
+  const ProfileHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: ListTile(
-        leading: Icon(icon, size: 22),
-        title: Text(
-          title,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+    final profcontroller = Get.find<ProfileCont>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Obx(
+      () => Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: isDark ? Colors.grey[900] : Colors.white,
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            if (!isDark)
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+          ],
         ),
-        trailing: trailingText != null
-            ? Text(
-                trailingText!,
-                style: const TextStyle(
-                  color: Colors.blue,
-                  fontWeight: FontWeight.bold,
-                ),
-              )
-            : const Icon(Icons.chevron_right, color: Colors.grey),
-        contentPadding: EdgeInsets.zero,
+        child: Row(
+          children: [
+            // عرض الصورة المختارة أو أيقونة افتراضية
+            CircleAvatar(
+              radius: 35,
+              backgroundColor: Colors.blue.withOpacity(0.1),
+              backgroundImage: profcontroller.selectedImage.value != null
+                  ? FileImage(
+                      File(profcontroller.selectedImage.value!.path),
+                    ) // 1. صورة من الموبايل
+                  : (profcontroller.profileImageBase64.value.isNotEmpty
+                        ? NetworkImage(profcontroller.profileImageBase64.value)
+                              as ImageProvider // 2. صورة من السيرفر
+                        : null),
+              child:
+                  (profcontroller.selectedImage.value == null &&
+                      profcontroller.profileImageBase64.value.isEmpty)
+                  ? const Icon(Icons.person, size: 40, color: Colors.blue)
+                  : null,
+            ),
+            const SizedBox(width: 15),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    profcontroller.name.value.isEmpty
+                        ? "Mostafa"
+                        : profcontroller.name.value,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    profcontroller.email.value,
+                    style: TextStyle(color: Colors.grey[500], fontSize: 14),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                Get.to(() => MyProfileScreen());
+              }, // هنا ممكن تفتح صفحة تعديل البروفايل
+              icon: const Icon(
+                Icons.edit_note_rounded,
+                color: Colors.blue,
+                size: 28,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class UserProfileHeader extends StatelessWidget {
-  const UserProfileHeader({super.key});
+class SettingTile extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+  final Color? iconColor;
+
+  const SettingTile({
+    super.key,
+    required this.title,
+    required this.icon,
+    this.trailing,
+    this.onTap,
+    this.iconColor,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const CircleAvatar(
-          backgroundColor: Colors.white,
-          radius: 30,
-          child: Icon(Icons.person, color: Colors.grey, size: 30),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return ListTile(
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      leading: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: (iconColor ?? Colors.blue).withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
         ),
-        const SizedBox(width: 15),
-        InkWell(
-          onTap: () {
-            Get.to(() => MyProfileScreen());
-          },
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Mostafa Hassan',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
+        child: Icon(icon, color: iconColor ?? Colors.blue, size: 22),
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+          color: isDark ? Colors.white : Colors.black87,
         ),
-        const Spacer(),
-        IconButton(
-          icon: const Icon(Icons.edit, size: 25),
-          onPressed: () {
-            Get.to(() => MyProfileScreen());
-          },
+      ),
+      trailing:
+          trailing ??
+          const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+    );
+  }
+}
+
+// --- الـ Tile بشكل عصري ومنظم جداً ---
+class SectionHeader extends StatelessWidget {
+  final String title;
+  const SectionHeader({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 25, bottom: 10, left: 5),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: Colors.blue[800],
+          letterSpacing: 1.2,
         ),
-        IconButton(
-          icon: const Icon(Icons.qr_code_scanner, size: 30),
-          onPressed: () {},
-        ),
-      ],
+      ),
     );
   }
 }

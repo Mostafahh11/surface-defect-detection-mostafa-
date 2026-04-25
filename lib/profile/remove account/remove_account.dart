@@ -31,7 +31,10 @@ class RemoveAccountPage extends StatelessWidget {
               style: TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),
-          TextButton(onPressed: () => Get.back(), child: const Text("Cancel")),
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+          ),
         ],
       ),
     );

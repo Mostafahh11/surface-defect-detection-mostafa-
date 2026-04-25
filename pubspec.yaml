@@ -15,7 +15,11 @@ dependencies:
   http: ^1.6.0
   image_cropper: ^11.0.0
   image_picker: ^1.2.1
+  flutter_launcher_icons: "^0.13.1"
   shared_preferences: ^2.5.4
+  google_sign_in: ^7.2.0
+  flutter_facebook_auth: ^7.1.6
+  intl: ^0.19.0
 dev_dependencies:
   flutter_lints: ^5.0.0
 
@@ -26,3 +30,10 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/images/logos.png" # مسار صورتك
+  adaptive_icon_foreground: "assets/images/logos.png" # للأندرويد الحديث
+  remove_alpha_ios: true

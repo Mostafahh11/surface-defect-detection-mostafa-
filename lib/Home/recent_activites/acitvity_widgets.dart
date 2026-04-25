@@ -4,6 +4,7 @@ class ActivityItem extends StatelessWidget {
   final String title, id, time, zone, defects, percent;
   final IconData icon;
   final Color iconColor;
+
   const ActivityItem({
     super.key,
     required this.title,
@@ -18,85 +19,121 @@ class ActivityItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // منطق بسيط لتحديد لون الحالة بناءً على النسبة
+    double accuracy = double.tryParse(percent.replaceAll('%', '')) ?? 0;
+    Color statusColor = accuracy >= 80
+        ? Colors.green
+        : (accuracy >= 50 ? Colors.orange : Colors.red);
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.all(15),
+      margin: const EdgeInsets.symmetric(
+        horizontal: 15,
+        vertical: 8,
+      ), // مقاسات متوازنة
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor, // يدعم الـ Dark Mode
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.withOpacity(0.1)),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 2),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey.shade200),
       ),
       child: Row(
         children: [
-          Icon(icon, color: iconColor, size: 30),
+          // الأيقونة بخلفية خفيفة
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: iconColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: iconColor, size: 24),
+          ),
           const SizedBox(width: 15),
+
+          // محتوى النص (الوسط)
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 17,
-                    color: Colors.black54,
+                    fontSize: 16,
                   ),
                 ),
+                const SizedBox(height: 2),
                 Text(
                   id,
-                  style: const TextStyle(
-                    color: Colors.black54,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  style: TextStyle(color: Colors.grey[500], fontSize: 13),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Row(
                   children: [
                     const Icon(
-                      Icons.location_on,
-                      size: 15,
+                      Icons.location_on_outlined,
+                      size: 14,
                       color: Colors.orange,
                     ),
+                    const SizedBox(width: 4),
                     Text(
-                      " Zone $zone ",
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                      zone,
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
-                    dotcont(iconColor),
-                    Text(
-                      "   $defects defects",
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    const SizedBox(width: 8),
+                    dotcont(statusColor),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        "$defects defects",
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
           ),
+
+          const SizedBox(width: 10),
+
+          // الجزء الأيمن (النسبة والوقت)
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(8),
+                  color: statusColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  "$percent%",
+                  percent,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black54,
+                    color: statusColor,
                   ),
                 ),
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 8),
               Text(
                 time,
-                style: const TextStyle(color: Colors.grey, fontSize: 13),
+                style: TextStyle(color: Colors.grey[400], fontSize: 11),
               ),
             ],
           ),
@@ -108,11 +145,8 @@ class ActivityItem extends StatelessWidget {
 
 Widget dotcont(Color color) {
   return Container(
-    width: 7,
-    height: 7,
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(7),
-      color: color,
-    ),
+    width: 6,
+    height: 6,
+    decoration: BoxDecoration(shape: BoxShape.circle, color: color),
   );
 }

@@ -1,47 +1,51 @@
 import 'package:defectscan/Home/recent_activites/acitvity_widgets.dart';
+import 'package:defectscan/controller/profile_cont/profile_cont.dart'; // استدعاء الكنترولر
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class RecentActivityPage extends StatelessWidget {
   const RecentActivityPage({super.key});
+
   @override
   Widget build(BuildContext context) {
+    final prof = Get.isRegistered<ProfileCont>()
+        ? Get.find<ProfileCont>()
+        : Get.put(ProfileCont());
+
     return Scaffold(
       appBar: AppBar(title: const Text("Recent Activity"), centerTitle: true),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: const [
-          ActivityItem(
-            title: "Steel Plate A-47",
-            id: "SC-2047",
-            time: "2 min ago",
-            zone: "A",
-            defects: "0",
-            icon: Icons.check_circle,
-            iconColor: Colors.green,
-            percent: '99.2',
-          ),
-          ActivityItem(
-            title: "Beam Section B-12",
-            id: "SC-2046",
-            time: "15 min ago",
-            zone: "C",
-            defects: "2",
-            icon: Icons.error,
-            iconColor: Colors.orange,
-            percent: '97.2',
-          ),
-          ActivityItem(
-            title: "Rod Bundle C-89",
-            id: "SC-2045",
-            time: "32 min ago",
-            zone: "B",
-            defects: "5",
-            icon: Icons.cancel,
-            iconColor: Colors.red,
-            percent: '96.1',
-          ),
-        ],
-      ),
+      // استخدمنا Obx عشان لو عملت scan جديد، الصفحة تتحدث لوحدها فوراً
+      body: Obx(() {
+        if (prof.scans.isEmpty) {
+          return const Center(child: Text("No activities yet."));
+        }
+
+        return ListView.builder(
+          itemCount: prof.scans.length,
+          padding: const EdgeInsets.all(10),
+          itemBuilder: (context, i) {
+            // بنجيب بيانات الفحص (Scan) من المصفوفة
+            // عكسنا الترتيب (length - 1 - i) عشان يعرض الأحدث فوق
+            var scan = prof.scans[prof.scans.length - 1 - i];
+
+            return ActivityItem(
+              id: "#${scan['id'] ?? i}", // رقم الـ ID
+              title: prof.scanTitle(scan), // العنوان
+              time: scan['created_at'] ?? "Just now", // الوقت
+              zone: "Zone ${prof.scanZone(scan)}", // المنطقة
+              defects: "${prof.scanDefect(scan)} Defects", // عدد العيوب
+              percent: "${prof.scanAccuracy(scan)}%", // النسبة المئوية
+              // الأيقونة واللون بنحددهم بناءً على حالة الفحص (لو الـ API باعتها)
+              icon: scan['status'] == 'success'
+                  ? Icons.check_circle
+                  : Icons.error_outline,
+              iconColor: scan['status'] == 'success'
+                  ? Colors.green
+                  : Colors.redAccent,
+            );
+          },
+        );
+      }),
     );
   }
 }

@@ -1,5 +1,6 @@
-import 'package:defectscan/Auth/presentation/pages/login_screen.dart';
 import 'package:defectscan/Auth/widgets/widgets.dart';
+import 'package:defectscan/Terms%20and%20Conditions/Text.dart';
+import 'package:defectscan/controller/Terms%20and%20Conditions/terms_cont.dart';
 import 'package:defectscan/controller/signup_cont.dart/signup_cont.dart';
 import 'package:defectscan/core/functions/validation/validation.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:get/get.dart';
 class RegisterPage extends StatelessWidget {
   RegisterPage({super.key});
   final controller = Get.put(SignupCont());
+  final controller2 = Get.put(TermsCont());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,7 +55,6 @@ class RegisterPage extends StatelessWidget {
                                   isvalid: (e) {
                                     return validinpute('username', e!, 2);
                                   },
-                                  obscure: false,
                                 ),
                               ),
                               SizedBox(width: 10),
@@ -65,7 +66,6 @@ class RegisterPage extends StatelessWidget {
                                   isvalid: (e) {
                                     return validinpute('username', e!, 2);
                                   },
-                                  obscure: false,
                                 ),
                               ),
                             ],
@@ -83,7 +83,6 @@ class RegisterPage extends StatelessWidget {
                           isvalid: (e) {
                             return validinpute('email', e!, 2);
                           },
-                          obscure: false,
                         ),
 
                         const SizedBox(height: 20),
@@ -99,7 +98,7 @@ class RegisterPage extends StatelessWidget {
                           isvalid: (e) {
                             return validinpute('password', e!, 2);
                           },
-                          obscure: false,
+                          obscure: true,
                         ),
 
                         const SizedBox(height: 20),
@@ -117,33 +116,79 @@ class RegisterPage extends StatelessWidget {
                           isvalid: (e) {
                             return validinpute('password', e!, 2);
                           },
-                          obscure: false,
+                          obscure: true,
                         ),
 
                         const SizedBox(height: 10),
 
                         Row(
-                          children: const [
-                            Checkbox(value: false, onChanged: null),
+                          children: [
+                            Obx(
+                              () => Checkbox(
+                                value: controller2.accept.value,
+                                onChanged: (_) {
+                                  if (controller2.accept.value == true) {
+                                    controller2.accept.value =
+                                        !controller2.accept.value;
+                                  }
+                                },
+                              ),
+                            ),
+
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    "Accept terms and condition ",
+                                  const Text(
+                                    "Accept terms and condition",
                                     style: TextStyle(
                                       fontSize: 15,
-                                      color: Colors.black,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  Text(
-                                    "You agree to our Terms of Service and Privacy Policy.",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.black38,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+
+                                  const SizedBox(height: 4),
+
+                                  Wrap(
+                                    children: [
+                                      const Text(
+                                        "You agree to our ",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+
+                                      GestureDetector(
+                                        onTap: () => showTermsDialog(context),
+                                        child: const Text(
+                                          "Terms of Service",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.blue,
+                                            fontWeight: FontWeight.bold,
+                                            decoration:
+                                                TextDecoration.underline,
+                                          ),
+                                        ),
+                                      ),
+
+                                      const Text(" and "),
+
+                                      GestureDetector(
+                                        onTap: () => showTermsDialog(context),
+                                        child: const Text(
+                                          "Privacy Policy",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.blue,
+                                            fontWeight: FontWeight.bold,
+                                            decoration:
+                                                TextDecoration.underline,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -164,13 +209,10 @@ class RegisterPage extends StatelessWidget {
                               ),
                             ),
                             onPressed: () {
-                              if(controller.confirmpasswords()){
-                               controller.goLogin();
-                              }
-                              else{
-
-                              }
-                             
+                              if (controller.confirmpasswords() &&
+                                  controller2.accept.value == true) {
+                                controller.registerUser();
+                              } else {}
                             },
                             child: const Text(
                               "Create account",
@@ -190,11 +232,13 @@ class RegisterPage extends StatelessWidget {
                           children: [
                             MyIconbutton(
                               icon: Icons.facebook,
+                              isgoogle: false,
                               color: Colors.blueAccent,
                               onTap: () {},
                             ),
                             const SizedBox(width: 16),
                             MyIconbutton(
+                              isgoogle: true,
                               icon: Icons.g_mobiledata,
                               color: Colors.red,
                               onTap: () {},
@@ -209,7 +253,7 @@ class RegisterPage extends StatelessWidget {
                             Text("Already have an account? "),
                             InkWell(
                               onTap: () {
-                                Get.to(() => LoginPage());
+                                Get.offNamed('/loginpage');
                               },
                               child: Text(
                                 "Sign in",

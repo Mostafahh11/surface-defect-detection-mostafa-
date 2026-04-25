@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class PasswordChangedPage extends StatelessWidget {
   const PasswordChangedPage({super.key});
@@ -30,7 +31,9 @@ class PasswordChangedPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Get.offAllNamed('loginpage');
+                },
                 child: const Text(
                   "Back To login",
                   style: TextStyle(color: Colors.white, fontSize: 15),

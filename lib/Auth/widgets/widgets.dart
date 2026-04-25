@@ -9,7 +9,7 @@ class CustomTextFormField extends StatelessWidget {
     required this.myicon,
     this.keyboardtype,
     required this.isvalid,
-    required this.obscure,
+    this.obscure = false,
     this.onPressed,
     this.maxlength,
   });
@@ -32,11 +32,11 @@ class CustomTextFormField extends StatelessWidget {
         keyboardType: keyboardtype,
         validator: isvalid,
         maxLength: maxlength,
-        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        style: TextStyle(fontWeight: FontWeight.w500),
         decoration: InputDecoration(
           // labelText: labeltext,
           hintText: hinttext,
-          hintStyle: TextStyle(color: Colors.black45),
+
           labelStyle: TextStyle(
             fontSize: 20,
             color: Colors.white,
@@ -80,7 +80,9 @@ Widget socialButton(String text, IconData icon, Color color, bool isgoogle) {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        isgoogle ? Image(image: AssetImage("")) : Icon(icon, color: color),
+        isgoogle
+            ? Image(image: AssetImage("assets/images/google.png"), width: 25)
+            : Icon(icon, color: color, size: 35),
         SizedBox(width: 10),
         Text(text, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
       ],
@@ -91,6 +93,7 @@ Widget socialButton(String text, IconData icon, Color color, bool isgoogle) {
 class MyIconbutton extends StatelessWidget {
   final IconData icon;
   final Color color;
+  final bool isgoogle;
   final void Function() onTap;
 
   const MyIconbutton({
@@ -98,13 +101,14 @@ class MyIconbutton extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.onTap,
+    required this.isgoogle,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      
+
       behavior: HitTestBehavior.opaque,
       child: Container(
         decoration: BoxDecoration(
@@ -114,7 +118,11 @@ class MyIconbutton extends StatelessWidget {
         ),
         width: 150, // تم تقليله قليلاً لتجنب الـ Overflow في الشاشات الصغيرة
         height: 50,
-        child: Center(child: Icon(icon, size: 30, color: color)),
+        child: Center(
+          child: isgoogle
+              ? Image(image: AssetImage('assets/images/google.png'), width: 25)
+              : Icon(icon, size: 35, color: color),
+        ),
       ),
     );
   }

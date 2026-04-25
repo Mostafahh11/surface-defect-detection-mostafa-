@@ -1,71 +1,67 @@
-import 'package:defectscan/profile/profile_page/profile_screen.dart';
+import 'dart:io';
+import 'package:defectscan/controller/profile_cont/profile_cont.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class Titlebar extends StatelessWidget {
-  const Titlebar({super.key});
+  Titlebar({super.key});
+  final ProfileCont controller = Get.isRegistered<ProfileCont>()
+      ? Get.find<ProfileCont>()
+      : Get.put(ProfileCont());
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ...List.generate(
-              5,
-              (e) => Icon(
-                Icons.star_border_purple500_rounded,
-                size: 20,
-                color: Colors.amber,
-              ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            "Defect Scan",
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(width: 30),
-            Text(
-              'STEEL SCAN',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            InkWell(
-              onTap: () {},
-              child: Stack(
-                alignment: AlignmentGeometry.topRight,
-                children: [
-                  _dotcontainer(Colors.red, "10"),
-                  const Icon(Icons.notifications_none_outlined),
-                ],
-              ),
-            ),
-            const SizedBox(width: 15),
-            CircleAvatar(
-              backgroundColor: Colors.white,
-              radius: 22,
-              child: IconButton(
-                icon: Icon(Icons.person, color: Colors.grey),
-                onPressed: () {
-                  Get.to(() => MyProfileScreen());
-                },
-              ),
-            ),
-          ],
-        ),
-      ],
+          ),
+          Row(
+            children: [
+              const Icon(Icons.notifications_none_outlined),
+              const SizedBox(width: 15),
+              Obx(() {
+                // تحديد مصدر الصورة
+                ImageProvider? getImageProvider() {
+                  // 1. لو مختار صورة جديدة من الموبايل
+                  if (controller.selectedImage.value != null) {
+                    return FileImage(
+                      File(controller.selectedImage.value!.path),
+                    );
+                  }
+                  // 2. لو فيه صورة جاية من السيرفر
+                  if (controller.profileImageBase64.value.isNotEmpty) {
+                    return NetworkImage(controller.profileImageBase64.value);
+                  }
+                  // 3. لا يوجد صورة
+                  return null;
+                }
+
+                return CircleAvatar(
+                  radius: 20,
+                  backgroundColor: Colors.grey[200],
+                  // بنمرر الـ ImageProvider هنا
+                  backgroundImage: getImageProvider(),
+                  // الأيقونة بتظهر فقط لو مفيش أي صورة (لا محلية ولا من السيرفر)
+                  child:
+                      (controller.selectedImage.value == null &&
+                          controller.profileImageBase64.value.isEmpty)
+                      ? const Icon(Icons.person, size: 20)
+                      : null,
+                );
+              }),
+            ],
+          ),
+        ],
+      ),
     );
   }
-}
-
-Widget _dotcontainer(Color color, String? text) {
-  return Container(
-    width: 13,
-    height: 13,
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(13),
-      color: color,
-    ),
-    child: Text(text!),
-  );
 }

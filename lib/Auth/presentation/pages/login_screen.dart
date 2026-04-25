@@ -1,4 +1,4 @@
-import 'package:defectscan/Auth/presentation/pages/reset_page.dart';
+import 'package:defectscan/Auth/presentation/pages/reset_pasword_with_email.dart';
 import 'package:defectscan/Auth/presentation/pages/signup_page.dart';
 import 'package:defectscan/Auth/widgets/widgets.dart';
 import 'package:defectscan/controller/login_cont/login_cont.dart';
@@ -75,7 +75,7 @@ class LoginPage extends StatelessWidget {
                             ),
                             TextButton(
                               onPressed: () {
-                                Get.to(() => ResetPasswordPage());
+                                Get.to(() => typeEmailtochangepassword());
                               },
                               child: Text(
                                 "Forget Password?",
@@ -85,19 +85,30 @@ class LoginPage extends StatelessWidget {
                           ],
                         ),
 
-                        CustomTextFormField(
-                          hinttext: "Password",
-                          myicon: Icon(Icons.remove_red_eye),
-                          controller: controller.password,
+                        GetBuilder<LoginCont>(
+                          builder: (_) {
+                            return CustomTextFormField(
+                              hinttext: "Password",
+                              myicon: controller.locked
+                                  ? Icon(Icons.lock, color: Colors.red)
+                                  : Icon(
+                                      Icons.lock_open_outlined,
+                                      color: Colors.green,
+                                    ),
+                              onPressed: () {
+                                controller.unlockeye();
+                              },
+                              controller: controller.password,
 
-                          isvalid: (e) {
-                            return validinpute('password', e!, 2);
+                              isvalid: (e) {
+                                return validinpute('password', e!, 2);
+                              },
+                              obscure: controller.locked,
+                            );
                           },
-                          obscure: false,
                         ),
 
                         const SizedBox(height: 30),
-
                         SizedBox(
                           width: double.infinity,
                           height: 50,
@@ -140,14 +151,13 @@ class LoginPage extends StatelessWidget {
                           "Continue with Google",
                           Icons.g_mobiledata_outlined,
                           Colors.red,
-                          false,
+                          true,
                         ),
                       ],
                     ),
                   ),
                 ),
               ),
-
               //
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -161,7 +171,7 @@ class LoginPage extends StatelessWidget {
                       "Sign up",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: Colors.amber,
                       ),
                     ),
                   ),

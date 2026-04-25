@@ -1,51 +1,51 @@
-class User {
+class UserModel {
   final int id;
-  final String firstname;
-  final String secoundname;
-
+  final String fullName;
   final String email;
-  final String password;
-  final String phone;
-
-  User({
-    required this.id,
-    required this.firstname,
-    required this.secoundname,
-    required this.email,
-    required this.password,
-    required this.phone,
-  });
-}
-
-class UserModel extends User {
+  final String? phone;
+  final String? avatar;
+  final String accountStatus;
+  final String role;
+  final String theme;
   UserModel({
-    required super.id,
-    required super.email,
-    required super.password,
-    required super.phone,
-    required super.firstname,
-    required super.secoundname,
+    required this.id,
+    required this.fullName,
+    required this.email,
+    this.phone,
+    this.avatar,
+    required this.accountStatus,
+    required this.role,
+    required this.theme,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
-    return UserModel(
-      id: json['id'] ?? 0,
-      email: json['email'] ?? '',
-      password: json['password'] ?? '',
-      phone: json['phone']?.toString() ?? '',
-      firstname: json['firstname'] ?? '',
-      secoundname: json['secoundname'] ?? '',
-    );
+    try {
+      return UserModel(
+        id: (json['id'] ?? 0) is int
+            ? json['id']
+            : int.tryParse(json['id'].toString()) ?? 0,
+        fullName: json['full_name'],
+        email: json['email'],
+        phone: json['phone'],
+        avatar: json['avatar'] ?? '',
+        accountStatus: json['account_status'] ?? '',
+        role: json['role'] ?? 'user',
+        theme: json['theme'] ?? 'light',
+      );
+    } catch (e) {
+      rethrow;
+    }
   }
-
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'firstname': firstname,
-      'secoundname': secoundname,
-      'email': email,
-      'password': password,
-      'phone': phone,
+      "id": id,
+      "full_name": fullName,
+      "email": email,
+      "phone": phone,
+      "avatar": avatar,
+      "account_status": accountStatus,
+      "role": role,
+      'theme': theme,
     };
   }
 }
