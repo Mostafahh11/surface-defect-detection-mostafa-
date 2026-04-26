@@ -19,20 +19,18 @@ class ActivityItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // منطق بسيط لتحديد لون الحالة بناءً على النسبة
-    double accuracy = double.tryParse(percent.replaceAll('%', '')) ?? 0;
+    final cleanPercent = percent.replaceAll(RegExp(r'[^0-9.]'), '');
+    final double accuracy = double.tryParse(cleanPercent) ?? 0.0;
+
     Color statusColor = accuracy >= 80
         ? Colors.green
-        : (accuracy >= 50 ? Colors.orange : Colors.red);
+        : (accuracy >= 50 ? Colors.orangeAccent : Colors.redAccent);
 
     return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: 15,
-        vertical: 8,
-      ), // مقاسات متوازنة
+      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor, // يدعم الـ Dark Mode
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.grey.withOpacity(0.1)),
         boxShadow: [
@@ -45,7 +43,7 @@ class ActivityItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // الأيقونة بخلفية خفيفة
+          // الأيقونة
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -56,7 +54,7 @@ class ActivityItem extends StatelessWidget {
           ),
           const SizedBox(width: 15),
 
-          // محتوى النص (الوسط)
+          // المحتوى
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,7 +69,6 @@ class ActivityItem extends StatelessWidget {
                     fontSize: 16,
                   ),
                 ),
-                const SizedBox(height: 2),
                 Text(
                   id,
                   style: TextStyle(color: Colors.grey[500], fontSize: 13),
@@ -90,7 +87,7 @@ class ActivityItem extends StatelessWidget {
                       style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                     const SizedBox(width: 8),
-                    dotcont(statusColor),
+                    dotcont(statusColor), // لون النقطة بقى ديناميكي
                     const SizedBox(width: 8),
                     Flexible(
                       child: Text(
@@ -107,10 +104,9 @@ class ActivityItem extends StatelessWidget {
 
           const SizedBox(width: 10),
 
-          // الجزء الأيمن (النسبة والوقت)
+          // النسبة والوقت
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(

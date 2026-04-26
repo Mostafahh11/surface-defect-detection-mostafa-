@@ -2,17 +2,42 @@ import 'package:defectscan/Home/Defect_images/scanResultScreen.dart';
 import 'package:defectscan/Home/Defect_images/take_photo.dart';
 import 'package:defectscan/Home/Defect_images/upload_image.dart';
 import 'package:defectscan/constants/colors/colors.dart';
+import 'package:defectscan/controller/theme_cont/theme_cont.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:defectscan/controller/profile_cont/profile_cont.dart';
+import 'package:defectscan/controller/statistics%20cont/stat.dart';
+// اعمل import لملف الـ ThemeController بتاعك هنا
 
-Widget profileCard(controller, context, profcontroller) {
+Widget profileCard(BuildContext context) {
+  // 1. استدعاء الكنترولرات بأمان من داخل الدالة
+  final profController = Get.isRegistered<ProfileCont>()
+      ? Get.find<ProfileCont>()
+      : Get.put(ProfileCont());
+  final statController = Get.isRegistered<StatisticsController>()
+      ? Get.find<StatisticsController>()
+      : Get.put(StatisticsController());
+  final themeController = Get.find<ThemeController>();
+
   return Obx(() {
+    int totalScans = statController.scans.length;
+    
+    double successRate =
+        double.tryParse(
+          (statController.stats['success_rate'] ?? 20).toString(),
+        ) ??
+        0.0;
+    double progressFraction = (totalScans / 60).clamp(0.0, 1.0);
+
+    bool isDark = themeController.isDarkMode.value;
+    String userName = profController.name.value.isNotEmpty
+        ? profController.name.value
+        : "User";
+
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: controller.isDarkMode.value
-            ? Theme.of(context).colorScheme.primary
-            : Mycolors.org,
+        color: isDark ? Theme.of(context).colorScheme.primary : Mycolors.org,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.grey.shade200),
       ),
@@ -26,9 +51,7 @@ Widget profileCard(controller, context, profcontroller) {
                 'Good Morning 👋',
                 style: TextStyle(
                   fontSize: 15,
-                  color: controller.isDarkMode.value
-                      ? Colors.grey
-                      : Colors.white,
+                  color: isDark ? Colors.grey : Colors.white,
                 ),
               ),
               Container(
@@ -41,9 +64,7 @@ Widget profileCard(controller, context, profcontroller) {
                   'Level 5',
                   style: TextStyle(
                     fontSize: 15,
-                    color: controller.isDarkMode.value
-                        ? Colors.grey
-                        : Colors.white,
+                    color: isDark ? Colors.grey : Colors.white,
                   ),
                 ),
               ),
@@ -51,21 +72,20 @@ Widget profileCard(controller, context, profcontroller) {
           ),
           const SizedBox(height: 8),
 
+          // الاسم بيتقرأ صح من البروفايل دلوقتي
           Text(
-            profcontroller.name.toString(),
+            userName,
             style: TextStyle(
-              // color: controller.isDarkMode.value ? Mycolors.org : Colors.white,
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: controller.isDarkMode.value ? Colors.grey : Colors.white,
+              color: isDark ? Colors.grey : Colors.white,
             ),
           ),
           Text(
             'Senior Quality Inspector',
             style: TextStyle(
-              // color: controller.isDarkMode.value ? Mycolors.org : Colors.white,
               fontSize: 13,
-              color: controller.isDarkMode.value ? Colors.grey : Colors.white,
+              color: isDark ? Colors.grey : Colors.white,
             ),
           ),
           const SizedBox(height: 25),
@@ -79,30 +99,25 @@ Widget profileCard(controller, context, profcontroller) {
                     'Today\'s scans',
                     style: TextStyle(
                       fontSize: 14,
-                      color: controller.isDarkMode.value
-                          ? Colors.grey
-                          : Colors.white,
+                      color: isDark ? Colors.grey : Colors.white,
                     ),
                   ),
                   Text(
-                    '${profcontroller.scans.length}/60',
-
+                    '$totalScans/60',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: controller.isDarkMode.value
-                          ? Colors.grey
-                          : Colors.white,
+                      color: isDark ? Colors.grey : Colors.white,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Container(
                     height: 4,
                     width: 80,
-                    color: Colors.grey[100],
+                    color: Colors.white30,
                     child: FractionallySizedBox(
                       alignment: Alignment.centerLeft,
-                      widthFactor: profcontroller.scans.length / 100,
+                      widthFactor: progressFraction,
                       child: Container(color: Colors.blue),
                     ),
                   ),
@@ -115,21 +130,17 @@ Widget profileCard(controller, context, profcontroller) {
                     'Success rate',
                     style: TextStyle(
                       fontSize: 14,
-                      color: controller.isDarkMode.value
-                          ? Colors.grey
-                          : Colors.white,
+                      color: isDark ? Colors.grey : Colors.white,
                     ),
                   ),
                   Row(
                     children: [
                       Text(
-                        '${profcontroller.scanStats['success_rate'] ?? 0}%',
+                        '${successRate.toInt()}%',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: controller.isDarkMode.value
-                              ? Colors.grey
-                              : Colors.white,
+                          color: isDark ? Colors.grey : Colors.white,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -137,10 +148,10 @@ Widget profileCard(controller, context, profcontroller) {
                         height: 24,
                         width: 24,
                         child: CircularProgressIndicator(
-                          value: profcontroller.scanStats['success_rate'] ?? 0,
+                          value: successRate / 100,
                           strokeWidth: 3,
                           color: Colors.blue,
-                          backgroundColor: Colors.white70,
+                          backgroundColor: Colors.white30,
                         ),
                       ),
                     ],

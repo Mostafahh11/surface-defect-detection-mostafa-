@@ -1,71 +1,113 @@
-import 'package:defectscan/controller/profile_cont/profile_cont.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:defectscan/controller/statistics cont/stat.dart';
 
 class StatisticsChart extends StatelessWidget {
-  final ProfileCont profcontroller;
+  final StatisticsController controller;
 
-  const StatisticsChart({super.key, required this.profcontroller});
+  const StatisticsChart({super.key, required this.controller});
+
+  /// 🔥 تحويل آمن لأي نوع لـ double
+  double _toDouble(dynamic value) {
+    if (value == null) return 0.0;
+    return double.tryParse(value.toString()) ?? 0.0;
+  }
+
+  /// 🔥 حساب النسبة بشكل آمن
+  double _percent(double part, double total) {
+    if (total == 0) return 0.0;
+    return (part / total) * 100;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (profcontroller.scans.length < 2) {
+      if (controller.stats.isEmpty) {
         return const Center(
           child: Text(
-            "Perform more scans to view analytics",
+            "No statistics available",
             style: TextStyle(color: Colors.grey),
           ),
         );
       }
 
+      final stats = controller.stats;
+
+      final accuracy = _toDouble(stats['accuracy']);
+      final success = _toDouble(stats['successRate']);
+      final passed = _toDouble(stats['passedCount']);
+      final defects = _toDouble(stats['defectCount']);
+
+      final total = passed + defects;
+
+      final passedPercent = _percent(passed, total);
+      final defectPercent = _percent(defects, total);
+
       return SizedBox(
-        height: 220,
+        height: 250,
         child: LineChart(
           LineChartData(
-            gridData: const FlGridData(show: false),
+            minY: 0,
+            maxY: 105,
+            minX: 0,
+            maxX: 3,
+
+            /// Grid
+            gridData: FlGridData(
+              show: true,
+              drawVerticalLine: false,
+              horizontalInterval: 25,
+              getDrawingHorizontalLine: (value) {
+                return FlLine(
+                  color: Colors.grey.withOpacity(0.1),
+                  strokeWidth: 1,
+                );
+              },
+            ),
+
             borderData: FlBorderData(show: false),
 
+            /// 🔥 Tooltip
             lineTouchData: LineTouchData(
               touchTooltipData: LineTouchTooltipData(
-                getTooltipColor: (touchedSpot) =>
-                    Colors.blueGrey.withOpacity(0.8),
-                getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
-                  return touchedBarSpots.map((barSpot) {
+                getTooltipColor: (_) => Colors.black.withOpacity(0.8),
+                getTooltipItems: (spots) {
+                  const labels = ["Accuracy", "Success", "Passed", "Defects"];
+
+                  return spots.map((spot) {
                     return LineTooltipItem(
-                      '${barSpot.y.toStringAsFixed(1)}%',
-                      const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      "${labels[spot.x.toInt()]}\n${spot.y.toStringAsFixed(1)}%",
+                      const TextStyle(color: Colors.white),
                     );
                   }).toList();
                 },
               ),
             ),
 
+            /// Axis
             titlesData: FlTitlesData(
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  interval: 1,
                   getTitlesWidget: (value, meta) {
-                    // عرض رقم الفحص (S1, S2, ...)
+                    const labels = ["Acc", "Suc", "Pass", "Def"];
+
                     return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
+                      padding: const EdgeInsets.only(top: 8),
                       child: Text(
-                        "S${value.toInt() + 1}",
+                        labels[value.toInt()],
                         style: TextStyle(color: Colors.grey[600], fontSize: 10),
                       ),
                     );
                   },
                 ),
               ),
+
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  interval: 25, // تقسيم المحور لـ 0, 25, 50, 75, 100
+                  interval: 25,
                   reservedSize: 35,
                   getTitlesWidget: (value, meta) {
                     return Text(
@@ -75,6 +117,7 @@ class StatisticsChart extends StatelessWidget {
                   },
                 ),
               ),
+
               rightTitles: const AxisTitles(
                 sideTitles: SideTitles(showTitles: false),
               ),
@@ -83,20 +126,19 @@ class StatisticsChart extends StatelessWidget {
               ),
             ),
 
+            /// 🔥 Line
             lineBarsData: [
-              // المنحنى الأساسي: دقة الفحوصات (Accuracy)
               LineChartBarData(
-                spots: profcontroller.scans.asMap().entries.map((entry) {
-                  final scan = Map<String, dynamic>.from(entry.value);
-                  return FlSpot(
-                    entry.key.toDouble(),
-                    profcontroller.scanAccuracy(scan),
-                  );
-                }).toList(),
+                spots: [
+                  FlSpot(0, accuracy), // Accuracy
+                  FlSpot(1, success), // Success Rate
+                  FlSpot(2, passedPercent), // Passed %
+                  FlSpot(3, defectPercent), // Defects %
+                ],
                 isCurved: true,
                 curveSmoothness: 0.35,
+                color: Colors.blueAccent,
                 barWidth: 4,
-                color: Colors.blueAccent, // لون احترافي متناسق
                 isStrokeCapRound: true,
                 dotData: const FlDotData(show: true),
                 belowBarData: BarAreaData(
@@ -105,12 +147,6 @@ class StatisticsChart extends StatelessWidget {
                 ),
               ),
             ],
-
-            // ضبط حدود الرسم البياني
-            minY: 0,
-            maxY: 105, // لترك مساحة صغيرة فوق الـ 100%
-            minX: 0,
-            maxX: (profcontroller.scans.length - 1).toDouble(),
           ),
         ),
       );

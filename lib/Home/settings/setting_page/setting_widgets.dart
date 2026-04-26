@@ -1,13 +1,10 @@
-import 'dart:io';
-
+import 'dart:convert'; // ضروري عشان الـ base64Decode
 import 'package:defectscan/profile/profile_page/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-// --- الـ Header بشكل فخم ونظيف ---
-
 import 'package:defectscan/controller/profile_cont/profile_cont.dart';
 
+// --- الـ Header بشكل فخم ونظيف ---
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({super.key});
 
@@ -16,8 +13,23 @@ class ProfileHeader extends StatelessWidget {
     final profcontroller = Get.find<ProfileCont>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Obx(
-      () => Container(
+    return Obx(() {
+      // 1. كل العمليات المنطقية بتتعمل هنا قبل الـ return
+      final imageStr = profcontroller.profileImageBase64.value;
+      ImageProvider? imageProvider;
+
+      if (imageStr.isNotEmpty) {
+        if (imageStr.startsWith('http')) {
+          imageProvider = NetworkImage(imageStr); // صورة من السيرفر
+        } else {
+          try {
+            imageProvider = MemoryImage(base64Decode(imageStr)); // صورة Base64
+          } catch (_) {}
+        }
+      }
+
+      // 2. هنا بنبدأ نرسم الـ UI بعد ما جهزنا الـ imageProvider
+      return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: isDark ? Colors.grey[900] : Colors.white,
@@ -37,17 +49,8 @@ class ProfileHeader extends StatelessWidget {
             CircleAvatar(
               radius: 35,
               backgroundColor: Colors.blue.withOpacity(0.1),
-              backgroundImage: profcontroller.selectedImage.value != null
-                  ? FileImage(
-                      File(profcontroller.selectedImage.value!.path),
-                    ) // 1. صورة من الموبايل
-                  : (profcontroller.profileImageBase64.value.isNotEmpty
-                        ? NetworkImage(profcontroller.profileImageBase64.value)
-                              as ImageProvider // 2. صورة من السيرفر
-                        : null),
-              child:
-                  (profcontroller.selectedImage.value == null &&
-                      profcontroller.profileImageBase64.value.isEmpty)
+              backgroundImage: imageProvider, // حطينا المتغير الجاهز هنا
+              child: imageProvider == null
                   ? const Icon(Icons.person, size: 40, color: Colors.blue)
                   : null,
             ),
@@ -77,7 +80,7 @@ class ProfileHeader extends StatelessWidget {
             IconButton(
               onPressed: () {
                 Get.to(() => MyProfileScreen());
-              }, // هنا ممكن تفتح صفحة تعديل البروفايل
+              }, 
               icon: const Icon(
                 Icons.edit_note_rounded,
                 color: Colors.blue,
@@ -86,11 +89,12 @@ class ProfileHeader extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
+    });
   }
 }
 
+// --- SettingTile ---
 class SettingTile extends StatelessWidget {
   final String title;
   final IconData icon;
@@ -130,14 +134,13 @@ class SettingTile extends StatelessWidget {
           color: isDark ? Colors.white : Colors.black87,
         ),
       ),
-      trailing:
-          trailing ??
+      trailing: trailing ??
           const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
     );
   }
 }
 
-// --- الـ Tile بشكل عصري ومنظم جداً ---
+// --- SectionHeader ---
 class SectionHeader extends StatelessWidget {
   final String title;
   const SectionHeader({super.key, required this.title});

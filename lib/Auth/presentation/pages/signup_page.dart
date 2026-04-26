@@ -45,28 +45,32 @@ class RegisterPage extends StatelessWidget {
                         const SizedBox(height: 30),
                         SizedBox(
                           width: double.infinity,
-                          child: Row(
+                          child: Column(
                             children: [
-                              Expanded(
-                                child: CustomTextFormField(
-                                  hinttext: "First Name",
-                                  myicon: Icon(Icons.person),
-                                  controller: controller.firstname,
-                                  isvalid: (e) {
-                                    return validinpute('username', e!, 2);
-                                  },
-                                ),
-                              ),
-                              SizedBox(width: 10),
-                              Expanded(
-                                child: CustomTextFormField(
-                                  hinttext: "Last Name",
-                                  myicon: Icon(Icons.person),
-                                  controller: controller.lastname,
-                                  isvalid: (e) {
-                                    return validinpute('username', e!, 2);
-                                  },
-                                ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: CustomTextFormField(
+                                      hinttext: "First Name",
+                                      myicon: Icon(Icons.person),
+                                      controller: controller.firstname,
+                                      isvalid: (e) {
+                                        return validinpute('username', e!, 2);
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: CustomTextFormField(
+                                      hinttext: "Last Name",
+                                      myicon: Icon(Icons.person),
+                                      controller: controller.lastname,
+                                      isvalid: (e) {
+                                        return validinpute('username', e!, 2);
+                                      },
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -90,15 +94,26 @@ class RegisterPage extends StatelessWidget {
                           "Password",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        CustomTextFormField(
-                          hinttext: "password",
-                          myicon: Icon(Icons.remove_red_eye_outlined),
-                          controller: controller.password,
-
-                          isvalid: (e) {
-                            return validinpute('password', e!, 2);
+                        GetBuilder<SignupCont>(
+                          builder: (_) {
+                            return CustomTextFormField(
+                              hinttext: "password",
+                              myicon: controller.locked1
+                                  ? Icon(Icons.lock, color: Colors.red)
+                                  : Icon(
+                                      Icons.lock_open_outlined,
+                                      color: Colors.green,
+                                    ),
+                              controller: controller.password,
+                              onPressed: () {
+                                controller.unlockeye();
+                              },
+                              isvalid: (e) {
+                                return validinpute('password', e!, 2);
+                              },
+                              obscure: controller.locked1,
+                            );
                           },
-                          obscure: true,
                         ),
 
                         const SizedBox(height: 20),
@@ -108,18 +123,42 @@ class RegisterPage extends StatelessWidget {
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
 
-                        CustomTextFormField(
-                          hinttext: "confirm password",
-                          myicon: Icon(Icons.remove_red_eye_outlined),
-                          controller: controller.confirmpassword,
-
-                          isvalid: (e) {
-                            return validinpute('password', e!, 2);
+                        GetBuilder<SignupCont>(
+                          builder: (_) {
+                            return CustomTextFormField(
+                              hinttext: "confirm password",
+                              myicon: controller.locked2
+                                  ? Icon(Icons.lock, color: Colors.red)
+                                  : Icon(
+                                      Icons.lock_open_outlined,
+                                      color: Colors.green,
+                                    ),
+                              controller: controller.confirmpassword,
+                              onPressed: () {
+                                controller.unlockeye2();
+                              },
+                              isvalid: (e) {
+                                return validinpute('password', e!, 2);
+                              },
+                              obscure: controller.locked2,
+                            );
                           },
-                          obscure: true,
                         ),
 
-                        const SizedBox(height: 10),
+                        const Text(
+                          "Phone",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+
+                        CustomTextFormField(
+                          hinttext: "Phone",
+                          myicon: Icon(Icons.phone),
+                          keyboardtype: TextInputType.phone,
+                          controller: controller.phone,
+                          isvalid: (e) {
+                            return validinpute('phone', e!, 2);
+                          },
+                        ),
 
                         Row(
                           children: [

@@ -10,7 +10,10 @@ class SignupCont extends GetxController {
   TextEditingController lastname = TextEditingController();
   TextEditingController confirmpassword = TextEditingController();
   TextEditingController password = TextEditingController();
-  
+  TextEditingController phone = TextEditingController();
+  bool locked1 = true;
+  bool locked2 = true;
+
   GlobalKey<FormState> formState = GlobalKey();
   Future<void> registerUser() async {
     if (!(formState.currentState?.validate() ?? false)) {
@@ -23,7 +26,7 @@ class SignupCont extends GetxController {
         email: email.text.trim(),
         password: password.text.trim(),
         confirmPassword: confirmpassword.text.trim(),
-        phone: '01008814321'.trim(),
+        phone: phone.text.trim(),
       );
       await ApiService.sendEmailCode(email.text);
       Get.toNamed('/otppage', arguments: {'email': email.text});
@@ -43,6 +46,16 @@ class SignupCont extends GetxController {
     } else {
       return false;
     }
+  }
+
+  unlockeye() {
+    locked1 = !locked1;
+    update();
+  }
+
+  unlockeye2() {
+    locked2 = !locked2;
+    update();
   }
 
   @override

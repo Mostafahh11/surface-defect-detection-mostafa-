@@ -1,6 +1,6 @@
 import 'package:defectscan/Home/history/history_widgets.dart';
 import 'package:defectscan/Home/recent_activites/recent_activity_page.dart';
-import 'package:defectscan/controller/profile_cont/profile_cont.dart'; // تأكد من المسار
+import 'package:defectscan/controller/defectCategories/defectcategroies.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -12,9 +12,9 @@ class HistoryPage extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final profcontroller = Get.isRegistered<ProfileCont>()
-        ? Get.find<ProfileCont>()
-        : Get.put(ProfileCont());
+    final DefectCategoryController controller = Get.put(
+      DefectCategoryController(),
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -56,44 +56,7 @@ class HistoryPage extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
-                child: Obx(() {
-                  // لو مفيش بيانات خالص اعرض رسالة فاضية بدل ايرور
-                  if (profcontroller.scans.isEmpty) {
-                    return const Center(
-                      child: Text("No scans found yet. Start scanning!"),
-                    );
-                  }
-
-                  // هنا هنعرض التصنيفات بناءً على آخر فحص (Latest Scan)
-                  final latest = profcontroller.scans.last;
-
-                  return ListView(
-                    padding: const EdgeInsets.all(12),
-                    children: [
-                      // تصنيف الخدوش
-                      DefectCategoryRow(
-                        icon: Icons.scuba_diving,
-                        label: "Scratches",
-                        cases: "${latest['scratches_count'] ?? 0}",
-                        percentage: (latest['scratches_percent'] ?? 0.0) / 100,
-                      ),
-                      Divider(
-                        color: colorScheme.outlineVariant.withOpacity(0.3),
-                      ),
-
-                      // تصنيف الصدأ
-                      DefectCategoryRow(
-                        icon: Icons.whatshot_outlined,
-                        label: "Corrosion",
-                        cases: "${profcontroller.scanDefect(latest)}",
-                        percentage: profcontroller.scanAccuracy(latest) / 100,
-                      ),
-                      Divider(
-                        color: colorScheme.outlineVariant.withOpacity(0.3),
-                      ),
-                    ],
-                  );
-                }),
+                child: DefectCategoryList(controller: controller),
               ),
             ),
           ),
@@ -113,13 +76,11 @@ class HistoryPage extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Obx(
-                    () => Text(
-                      "Total Scans: ${profcontroller.scans.length}",
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
+                  Text(
+                    "See all Scans ",
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],

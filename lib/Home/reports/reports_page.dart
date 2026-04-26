@@ -2,7 +2,7 @@ import 'package:defectscan/Home/reports/gauge_chart.dart';
 import 'package:defectscan/Home/reports/pie_chart.dart';
 import 'package:defectscan/Home/reports/statistics_chart.dart';
 import 'package:defectscan/constants/colors/colors.dart';
-import 'package:defectscan/controller/profile_cont/profile_cont.dart';
+import 'package:defectscan/controller/statistics%20cont/stat.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,9 +11,9 @@ class DetailedReportPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final profcontroller = Get.isRegistered<ProfileCont>()
-        ? Get.find<ProfileCont>()
-        : Get.put(ProfileCont());
+    final statisticsController = Get.isRegistered<StatisticsController>()
+        ? Get.find<StatisticsController>()
+        : Get.put(StatisticsController());
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -26,11 +26,24 @@ class DetailedReportPage extends StatelessWidget {
       ),
       body: SafeArea(
         child: Obx(() {
-          // جلب آخر فحص أو خريطة فاضية لو مفيش بيانات
-          final latest = profcontroller.scans.isNotEmpty
-              ? Map<String, dynamic>.from(profcontroller.scans.last)
+          // جلب بيانات آخر فحص بأمان
+          final latest = statisticsController.scans.isNotEmpty
+              ? Map<String, dynamic>.from(statisticsController.scans.last)
               : <String, dynamic>{};
-          final totalScans = profcontroller.scans.length;
+
+          final totalScans = statisticsController.scans.length;
+
+          // استخراج الأعداد مباشرة من الـ Map (بدلاً من الدوال الممسوحة)
+          int passedCount =
+              int.tryParse(
+                (latest['passed_count'] ?? latest['passed'] ?? 0).toString(),
+              ) ??
+              0;
+          int defectsCount =
+              int.tryParse(
+                (latest['defect_count'] ?? latest['defects'] ?? 0).toString(),
+              ) ??
+              0;
 
           return ListView(
             padding: const EdgeInsets.all(15),
@@ -83,7 +96,9 @@ class DetailedReportPage extends StatelessWidget {
                           ),
                         ),
                         MaterialButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            statisticsController.exportStatistics();
+                          },
                           color: Mycolors.org,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -97,9 +112,8 @@ class DetailedReportPage extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    // الشارت هيرسم "أصفار" لو الداتا فاضية بفضل الـ Logic اللي جوه StatisticsChart
                     Expanded(
-                      child: StatisticsChart(profcontroller: profcontroller),
+                      child: StatisticsChart(controller: statisticsController),
                     ),
                   ],
                 ),
@@ -151,24 +165,26 @@ class DetailedReportPage extends StatelessWidget {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  ResultPieChart(controller: profcontroller),
+                                  ResultPieChart(
+                                    controller: statisticsController,
+                                  ),
                                 ],
                               ),
                             ),
                             const SizedBox(height: 15),
-                            // عرض أصفار لو الداتا Null
                             Wrap(
                               runSpacing: 10,
                               spacing: 8,
                               alignment: WrapAlignment.center,
                               children: [
+                                // استخدام المتغيرات اللي استخرجناها فوق
                                 _valueWithText(
-                                  profcontroller.scanPassed(latest),
+                                  passedCount,
                                   "Healthy",
                                   Colors.greenAccent,
                                 ),
                                 _valueWithText(
-                                  profcontroller.scanDefect(latest),
+                                  defectsCount,
                                   "Defects",
                                   Colors.redAccent,
                                 ),
@@ -198,10 +214,13 @@ class DetailedReportPage extends StatelessWidget {
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 10),
-                            SizedBox(height: 120, child: StorageGauge()),
+                            const SizedBox(
+                              height: 120,
+                              child: StorageGauge(),
+                            ), // تأكد إن StorageGauge مش محتاج parameters
                             const SizedBox(height: 10),
                             Text(
-                              "${profcontroller.scanStats['accuracy'] ?? 0}%",
+                              "${statisticsController.accuracy}%",
                               style: TextStyle(
                                 color: Mycolors.org,
                                 fontWeight: FontWeight.bold,

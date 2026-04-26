@@ -1,4 +1,4 @@
-import 'package:defectscan/controller/Detection_Cont/detectionCont.dart';
+import 'package:defectscan/controller/scan_cont/detectionCont.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

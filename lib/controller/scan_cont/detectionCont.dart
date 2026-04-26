@@ -13,7 +13,6 @@ class ScanController extends GetxController {
   Rxn<File> galleryImage = Rxn<File>();
   Rxn<File> originalImageForReport = Rxn<File>();
 
-  // نتائج التحليل
   var annotatedImageBase64 = "".obs;
   var defectType = "".obs;
   var confidence = 0.0.obs;

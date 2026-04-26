@@ -1,5 +1,5 @@
 import 'package:defectscan/Home/recent_activites/acitvity_widgets.dart';
-import 'package:defectscan/controller/profile_cont/profile_cont.dart'; // استدعاء الكنترولر
+import 'package:defectscan/controller/defectCategories/defectcategroies.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -8,40 +8,44 @@ class RecentActivityPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final prof = Get.isRegistered<ProfileCont>()
-        ? Get.find<ProfileCont>()
-        : Get.put(ProfileCont());
+    final controller = Get.put(DefectCategoryController());
 
     return Scaffold(
       appBar: AppBar(title: const Text("Recent Activity"), centerTitle: true),
-      // استخدمنا Obx عشان لو عملت scan جديد، الصفحة تتحدث لوحدها فوراً
+
       body: Obx(() {
-        if (prof.scans.isEmpty) {
+        final list = controller.recentactivity;
+
+        if (controller.loading.value && list.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (list.isEmpty) {
           return const Center(child: Text("No activities yet."));
         }
 
         return ListView.builder(
-          itemCount: prof.scans.length,
+          itemCount: list.length,
           padding: const EdgeInsets.all(10),
           itemBuilder: (context, i) {
-            // بنجيب بيانات الفحص (Scan) من المصفوفة
-            // عكسنا الترتيب (length - 1 - i) عشان يعرض الأحدث فوق
-            var scan = prof.scans[prof.scans.length - 1 - i];
+            // أحدث أولًا
+            final scan = list[list.length - 1 - i];
+
+            // حسب الموديل بتاعك (عدّل لو الأسماء مختلفة)
+            final defectsCount = scan.totalDefects;
+            final accuracy = scan.totalImages;
+
+            final isSuccess = scan.status == 'success' || defectsCount == 0;
 
             return ActivityItem(
-              id: "#${scan['id'] ?? i}", // رقم الـ ID
-              title: prof.scanTitle(scan), // العنوان
-              time: scan['created_at'] ?? "Just now", // الوقت
-              zone: "Zone ${prof.scanZone(scan)}", // المنطقة
-              defects: "${prof.scanDefect(scan)} Defects", // عدد العيوب
-              percent: "${prof.scanAccuracy(scan)}%", // النسبة المئوية
-              // الأيقونة واللون بنحددهم بناءً على حالة الفحص (لو الـ API باعتها)
-              icon: scan['status'] == 'success'
-                  ? Icons.check_circle
-                  : Icons.error_outline,
-              iconColor: scan['status'] == 'success'
-                  ? Colors.green
-                  : Colors.redAccent,
+              id: "#${scan.scanId}",
+              title: scan.scanType,
+              time: scan.createdAt,
+              zone: "Zone A", 
+              defects: "$defectsCount",
+              percent: "$accuracy%",
+              icon: isSuccess ? Icons.check_circle : Icons.error_outline,
+              iconColor: isSuccess ? Colors.green : Colors.redAccent,
             );
           },
         );

@@ -1,91 +1,143 @@
-import 'package:defectscan/controller/profile_cont/profile_cont.dart';
+import 'package:defectscan/controller/statistics%20cont/stat.dart';
 import 'package:flutter/material.dart';
 
-class ModernStatTile extends StatelessWidget {
-  final IconData icon;
-  final String title, subtitle, caption;
-  final Color color;
+// ==========================================
+// 1. Quick Insights Widget (مطابق للصورة)
+// ==========================================
+class QuickInsightsWidget extends StatelessWidget {
+  final double accuracy;
+  final int totalScans;
 
-  const ModernStatTile({
+  const QuickInsightsWidget({
     super.key,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.caption,
-    required this.color,
+    required this.accuracy,
+    required this.totalScans,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    // حساب المتبقي للهدف اليومي (افتراضي 60)
+    int remaining = (60 - totalScans) > 0 ? 60 - totalScans : 0;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? Colors.grey[900] : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? Colors.grey[800]! : Colors.grey.shade100,
+          color: isDark ? Colors.grey[800]! : Colors.grey.shade200,
           width: 1.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // أيقونة ملونة بخلفية خفيفة
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Icon(icon, color: color, size: 28),
+          // عنوان القسم
+          Row(
+            children: [
+              Icon(
+                Icons.trending_up,
+                color: isDark ? Colors.white : Colors.black87,
+                size: 26,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                "Quick insights",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
-          // النصوص
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey[500],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  caption,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[400]),
-                ),
-              ],
+          const SizedBox(height: 20),
+
+          // البصيرة الأولى: أفضل أداء
+          _buildInsightRow(
+            context: context,
+            icon: Icons.workspace_premium_outlined,
+            iconColor: Colors.orangeAccent,
+            title: "Best performance",
+            subtitle:
+                "You've achieved $accuracy% accuracy this week\nYour best record!",
+          ),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Divider(
+              color: isDark ? Colors.grey[800] : Colors.grey.shade200,
             ),
           ),
-          Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey[300]),
+
+          // البصيرة الثانية: الهدف اليومي
+          _buildInsightRow(
+            context: context,
+            icon: Icons.track_changes_outlined,
+            iconColor: Colors.greenAccent.shade400,
+            title: "Daily goal progress",
+            subtitle:
+                "$remaining more scans to reach your 60-scan target\nfor today",
+          ),
         ],
       ),
     );
   }
+
+  Widget _buildInsightRow({
+    required BuildContext context,
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: iconColor.withOpacity(0.5), width: 1.5),
+          ),
+          child: Icon(icon, color: iconColor, size: 22),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
 
+// ==========================================
+// 2. Stat Card Grid Widget (مطابق للصورة)
+// ==========================================
 class StatCardWidget extends StatelessWidget {
   final StatCardData data;
 
@@ -93,11 +145,15 @@ class StatCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // تحديد لون نسبة التغير (أحمر لو سالب، أسود لو موجب)
+    bool isNegative = data.trend.startsWith('-');
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: data.color,
-        borderRadius: BorderRadius.circular(20),
+        color: data.color, // الألوان القادمة من الكنترولر يفضل تكون باستيل
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,17 +161,22 @@ class StatCardWidget extends StatelessWidget {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // الأيقونة بخلفية أغمق قليلاً من لون الكارت
               CircleAvatar(
-                radius: 25,
-                backgroundColor: data.avatarcolor,
-                child: Icon(data.icondata, color: data.iconscolor, size: 30),
+                radius: 22,
+                backgroundColor: Colors.black.withOpacity(0.05),
+                child: Icon(data.icondata, color: Colors.black87, size: 24),
               ),
+              // نسبة التغير
               Text(
                 data.trend,
                 style: TextStyle(
-                  color: data.iconscolor,
-                  fontSize: 15,
+                  color: isNegative
+                      ? Colors.red.shade700
+                      : (isDark ? Colors.white : Colors.black87),
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -124,16 +185,25 @@ class StatCardWidget extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // العنوان
+              Text(
+                data.title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 4),
+              // القيمة الكبيرة
               Text(
                 data.value,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  letterSpacing: -0.5,
                 ),
-              ),
-              Text(
-                data.title,
-                style: const TextStyle(fontSize: 15, color: Colors.grey),
               ),
             ],
           ),

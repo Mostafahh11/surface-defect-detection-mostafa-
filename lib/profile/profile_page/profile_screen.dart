@@ -1,8 +1,4 @@
-// ignore_for_file: must_be_immutable
-
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:defectscan/constants/colors/colors.dart';
 import 'package:defectscan/controller/profile_cont/profile_cont.dart';
 import 'package:defectscan/profile/profile_page/profile_screen_widgets.dart';
@@ -11,58 +7,70 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class MyProfileScreen extends StatelessWidget {
-  String formattedDate = "N/A";
   MyProfileScreen({super.key});
-  final ProfileCont controller = Get.isRegistered<ProfileCont>()
-      ? Get.find<ProfileCont>()
-      : Get.put(ProfileCont());
+
+  final ProfileCont controller = Get.put(ProfileCont());
 
   @override
   Widget build(BuildContext context) {
-    if (controller.createdAt.value.isNotEmpty) {
-      DateTime parsedDate = DateTime.parse(controller.createdAt.value);
-      formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
-    }
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildHeader(context, controller),
+            _buildHeader(context),
             const SizedBox(height: 10),
 
             // قسم المعلومات الشخصية
             _buildSectionTitle("Personal Information"),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  ProfileDetailCard(
-                    icon: Icons.phone_android_rounded,
-                    title: "Phone Number",
-                    value: controller.phone.value.toString(),
-                    iconColor: Colors.blue,
-                  ),
-                  ProfileDetailCard(
-                    icon: Icons.location_on_rounded,
-                    title: "Location",
-                    value: "Cairo, Egypt",
-                    iconColor: Colors.orange,
-                  ),
-                  ProfileDetailCard(
-                    icon: Icons.verified_user_rounded,
-                    title: "Account Status",
-                    value: "Verified Professional ,${controller.userRole}",
-                    iconColor: Colors.green,
-                  ),
+              child: Obx(() {
+                // 1. تظبيط التاريخ هنا عشان يتحدث تلقائي
+                String formattedDate = "N/A";
+                if (controller.createdAt.value.isNotEmpty) {
+                  try {
+                    DateTime parsedDate = DateTime.parse(
+                      controller.createdAt.value,
+                    );
+                    formattedDate = DateFormat('yyyy-MM-dd').format(parsedDate);
+                  } catch (_) {}
+                }
 
-                  ProfileDetailCard(
-                    icon: Icons.timelapse_outlined,
-                    title: "Account Created ",
-                    value: formattedDate,
-                    iconColor: Colors.green,
-                  ),
-                ],
-              ),
+                // 2. تظبيط شكل الـ Role
+                String roleName =
+                    controller.userRole.value.name.capitalizeFirst ?? 'User';
+
+                return Column(
+                  children: [
+                    ProfileDetailCard(
+                      icon: Icons.phone_android_rounded,
+                      title: "Phone Number",
+                      value: controller.phone.value.isNotEmpty
+                          ? controller.phone.value
+                          : "N/A",
+                      iconColor: Colors.blue,
+                    ),
+                    ProfileDetailCard(
+                      icon: Icons.location_on_rounded,
+                      title: "Location",
+                      value: "Cairo, Egypt",
+                      iconColor: Colors.orange,
+                    ),
+                    ProfileDetailCard(
+                      icon: Icons.verified_user_rounded,
+                      title: "Account Status",
+                      value: "Verified Professional, $roleName",
+                      iconColor: Colors.green,
+                    ),
+                    ProfileDetailCard(
+                      icon: Icons.timelapse_outlined,
+                      title: "Account Created",
+                      value: formattedDate,
+                      iconColor: Colors.green,
+                    ),
+                  ],
+                );
+              }),
             ),
 
             const SizedBox(height: 5),
@@ -77,13 +85,13 @@ class MyProfileScreen extends StatelessWidget {
                     label: "Edit Profile Info",
                     icon: Icons.edit_note_rounded,
                     color: Mycolors.org,
-                    onTap: () {},
+                    onTap: () {}, // سيتم إضافة الانتقال لصفحة التعديل
                   ),
                   ActionButton(
                     label: "Logout",
                     icon: Icons.logout_rounded,
                     color: Colors.redAccent,
-                    onTap: () => _showLogoutDialog(context),
+                    onTap: () => _showLogoutDialog(),
                   ),
                 ],
               ),
@@ -96,7 +104,7 @@ class MyProfileScreen extends StatelessWidget {
   }
 
   // هيدر الصفحة بتصميم زجاجي متدرج
-  Widget _buildHeader(BuildContext context, controller) {
+  Widget _buildHeader(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(top: 60, bottom: 40),
@@ -115,20 +123,24 @@ class MyProfileScreen extends StatelessWidget {
         children: [
           _buildAvatar(),
           const SizedBox(height: 15),
-          Text(
-            controller.name.value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
+          Obx(
+            () => Text(
+              controller.name.value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1,
+              ),
             ),
           ),
-          Text(
-            controller.email.value,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
-              fontSize: 14,
+          Obx(
+            () => Text(
+              controller.email.value,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 14,
+              ),
             ),
           ),
         ],
@@ -136,33 +148,23 @@ class MyProfileScreen extends StatelessWidget {
     );
   }
 
-  // ودجت الأفاتار مع ميزة الـ Obx
+  // ودجت الأفاتار الأنظف والأخف
   Widget _buildAvatar() {
     return Stack(
       alignment: Alignment.bottomRight,
       children: [
-        /// 🔹 Avatar
         Obx(() {
-          final selected = controller.selectedImage.value;
           final serverImage = controller.profileImageBase64.value;
-
           ImageProvider? imageProvider;
 
-          // 1️⃣ صورة من الجهاز (أولوية)
-          if (selected != null) {
-            imageProvider = FileImage(File(selected.path));
-          }
-          // 2️⃣ صورة من السيرفر (URL)
-          else if (serverImage.isNotEmpty && serverImage.startsWith('http')) {
-            imageProvider = NetworkImage(
-              "$serverImage?t=${DateTime.now().millisecondsSinceEpoch}",
-            );
-          }
-          // 3️⃣ Base64
-          else if (serverImage.isNotEmpty) {
-            try {
-              imageProvider = MemoryImage(base64Decode(serverImage));
-            } catch (_) {}
+          if (serverImage.isNotEmpty) {
+            if (serverImage.startsWith('http')) {
+              imageProvider = NetworkImage(serverImage);
+            } else {
+              try {
+                imageProvider = MemoryImage(base64Decode(serverImage));
+              } catch (_) {}
+            }
           }
 
           return Container(
@@ -177,8 +179,6 @@ class MyProfileScreen extends StatelessWidget {
               radius: 60,
               backgroundColor: Colors.grey.shade200,
               backgroundImage: imageProvider,
-
-              /// fallback
               child: imageProvider == null
                   ? Text(
                       controller.name.value.isNotEmpty
@@ -195,11 +195,9 @@ class MyProfileScreen extends StatelessWidget {
           );
         }),
 
-        /// 🔹 زرار الكاميرا
+        // زرار الكاميرا
         GestureDetector(
-          onTap: () {
-            _showEditPhotoSheet(Get.context!);
-          },
+          onTap: () => _showEditPhotoSheet(),
           child: Container(
             padding: const EdgeInsets.all(8),
             decoration: const BoxDecoration(
@@ -214,10 +212,9 @@ class MyProfileScreen extends StatelessWidget {
           ),
         ),
 
-        /// 🔹 Loading overlay
+        // علامة التحميل (Loading)
         Obx(() {
           if (!controller.isUploading.value) return const SizedBox();
-
           return Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -234,17 +231,13 @@ class MyProfileScreen extends StatelessWidget {
     );
   }
 
-  // ميثود مساعدة لعرض الـ BottomSheet لاختيار المصدر
-  void _showEditPhotoSheet(BuildContext context) {
+  void _showEditPhotoSheet() {
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -261,7 +254,7 @@ class MyProfileScreen extends StatelessWidget {
               ),
               title: const Text("Gallery"),
               onTap: () {
-                Get.back(); // إغلاق الـ BottomSheet
+                Get.back();
                 controller.pickImageFromGallery();
               },
             ),
@@ -272,7 +265,7 @@ class MyProfileScreen extends StatelessWidget {
               ),
               title: const Text("Camera"),
               onTap: () {
-                Get.back(); // إغلاق الـ BottomSheet
+                Get.back();
                 controller.takePhoto();
               },
             ),
@@ -299,7 +292,7 @@ class MyProfileScreen extends StatelessWidget {
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
+  void _showLogoutDialog() {
     Get.defaultDialog(
       title: "Logout",
       middleText: "Are you sure you want to exit?",

@@ -20,5 +20,5 @@ class ApiLinkes {
   static const String allScans = '$baseurl/scans';
   static const String scanWithId = '$baseurl/scans/{id}';
   static const String deleteWithId = '$baseurl/scans/{id}';
-  static const String scanStatistics = '$baseurl/scan-statistics';
+  static const String scanStatistics = '$baseurl/user-statistics/analytics';
 }

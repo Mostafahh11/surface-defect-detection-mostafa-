@@ -1,76 +1,90 @@
+import 'package:defectscan/controller/statistics cont/stat.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:defectscan/controller/profile_cont/profile_cont.dart';
-import 'package:defectscan/constants/colors/colors.dart';
 
 class StorageGauge extends StatelessWidget {
   const StorageGauge({super.key});
 
+  double _toDouble(dynamic value) {
+    if (value == null) return 0.0;
+    return double.tryParse(value.toString()) ?? 0.0;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final profcontroller = Get.isRegistered<ProfileCont>()
-        ? Get.find<ProfileCont>()
-        : Get.put(ProfileCont());
+    final controller = Get.find<StatisticsController>();
 
     return SizedBox(
       height: 180,
       child: Obx(() {
-        double accuracy = profcontroller.scanStats['accuracy'] ?? 0;
+        if (controller.stats.isEmpty) {
+          return const Center(child: Text("No data"));
+        }
 
-        // حساب القيمة المتبقية عشان نكمل الدايرة (لكن هنخفيها)
+        final stats = controller.stats;
+
+        double accuracy = _toDouble(stats['accuracy']);
+
+        /// حماية
+        if (accuracy < 0) accuracy = 0;
+        if (accuracy > 100) accuracy = 100;
+
         double remaining = 100 - accuracy;
-        if (remaining < 0) remaining = 0;
 
-        return PieChart(
-          PieChartData(
-            startDegreeOffset: 180, // يبدأ من اليسار
-            sectionsSpace: 0,
-            centerSpaceRadius: 50,
-            // دي أهم نقطة عشان يبان كأنه Gauge: بنرسم نص دايرة وبنخفي الباقي
-            sections: [
-              // الجزء الملون (الـ Accuracy الحقيقية)
-              PieChartSectionData(
-                value: accuracy,
-                radius: 15,
-                showTitle: false,
-                color: Mycolors.org, // اللون البرتقالي بتاعك
-                badgeWidget: _buildBadge(
-                  accuracy,
-                ), // إضافة أيقونة صغيرة عند النقطة
-                badgePositionPercentageOffset: .98,
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            PieChart(
+              PieChartData(
+                startDegreeOffset: 180,
+                sectionsSpace: 0,
+                centerSpaceRadius: 50,
+                sections: [
+                  /// ✅ Accuracy
+                  PieChartSectionData(
+                    value: accuracy,
+                    radius: 15,
+                    showTitle: false,
+                    color: Colors.orange,
+                  ),
+
+                  /// الجزء الفاضي
+                  PieChartSectionData(
+                    value: remaining,
+                    radius: 12,
+                    showTitle: false,
+                    color: Colors.grey.withOpacity(0.2),
+                  ),
+
+                  /// إخفاء النص التاني من الدايرة
+                  PieChartSectionData(
+                    value: 100,
+                    radius: 0,
+                    showTitle: false,
+                    color: Colors.transparent,
+                  ),
+                ],
               ),
-              // الجزء الفارغ (الرمادي)
-              PieChartSectionData(
-                value: remaining,
-                radius: 12,
-                showTitle: false,
-                color: Colors.grey.withOpacity(0.2),
-              ),
-              // الجزء السفلي المخفي (عشان يدي شكل نص الدايرة)
-              PieChartSectionData(
-                value: 100,
-                radius: 0,
-                showTitle: false,
-                color: Colors.transparent,
-              ),
-            ],
-          ),
+            ),
+
+            /// 🔥 النص في النص
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "${accuracy.toStringAsFixed(1)}%",
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Text("Accuracy", style: TextStyle(color: Colors.grey)),
+              ],
+            ),
+          ],
         );
       }),
-    );
-  }
-
-  // ودجت اختيارية لو حابب تحط لمسة جمالية في نهاية الخط
-  Widget _buildBadge(double val) {
-    return Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        border: Border.all(color: Mycolors.org, width: 2),
-      ),
     );
   }
 }

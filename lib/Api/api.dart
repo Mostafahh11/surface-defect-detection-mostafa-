@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:defectscan/Model/historymodel.dart';
 import 'package:defectscan/Model/login_response.dart';
+import 'package:defectscan/Model/recent_activity_model.dart';
 import 'package:defectscan/core/service/sharedpreff.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -39,7 +41,7 @@ class ApiService {
     required String email,
     required String password,
     required String confirmPassword,
-    required String phone, // التأكد إنها String
+    required String phone,
   }) async {
     final response = await http.post(
       Uri.parse(ApiLinkes.register),
@@ -285,7 +287,6 @@ class ApiService {
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
 
-        // ⚠️ حسب شكل الباك
         if (data is List) {
           return data;
         } else if (data is Map<String, dynamic>) {
@@ -343,4 +344,62 @@ class ApiService {
       return null;
     }
   }
+
+  // أضف هذه الدالة داخل كلاس ApiService
+ static Future<List<Historymodel>> getDefectCategories() async {
+  try {
+    final token = StorageService.shared.getString("token");
+
+    final response = await http.get(
+      Uri.parse("${ApiLinkes.baseurl}/user-statistics/history"),
+      headers: {
+        "Authorization": "Bearer $token",
+        "Accept": "application/json",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+
+      final List data = json["defectCategories"] ?? [];
+
+      return data
+          .map((e) => Historymodel.fromJson(e))
+          .toList();
+    }
+
+    return [];
+  } catch (e) {
+    debugPrint("Error fetching categories: $e");
+    return [];
+  }
+}
+ static Future<List<RecentActivityModel>> getrecentactivity() async {
+  try {
+    final token = StorageService.shared.getString("token");
+
+    final response = await http.get(
+      Uri.parse("${ApiLinkes.baseurl}/user-statistics/history"),
+      headers: {
+        "Authorization": "Bearer $token",
+        "Accept": "application/json",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+
+      final List data = json["defectCategories"] ?? [];
+
+      return data
+          .map((e) => RecentActivityModel.fromJson(e))
+          .toList();
+    }
+
+    return [];
+  } catch (e) {
+    debugPrint("Error fetching categories: $e");
+    return [];
+  }
+}
 }

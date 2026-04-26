@@ -13,6 +13,11 @@ validinpute(String type, String valuee, min) {
         return "isnot valid";
       }
     }
+    if (type == "phone") {
+      if (!GetUtils.isPhoneNumber(valuee)) {
+        return "isnot valid";
+      }
+    }
   }
   if (valuee.length < min) {
     return "cant't be less than 2";

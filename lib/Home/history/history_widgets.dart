@@ -1,114 +1,144 @@
+import 'package:defectscan/controller/defectCategories/defectcategroies.dart';
 import 'package:flutter/material.dart';
-import 'package:defectscan/constants/colors/colors.dart'; // عشان نستخدم Mycolors.org
+import 'package:get/get.dart';
 
-class DefectCategoryRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String cases;
-  final double percentage;
+class DefectCategoryList extends StatelessWidget {
+  final DefectCategoryController controller;
 
-  const DefectCategoryRow({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.cases,
-    required this.percentage,
-  });
+  const DefectCategoryList({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
-    Color progressColor = percentage > 0.7
-        ? Colors.redAccent
-        : (percentage > 0.4 ? Mycolors.org : Colors.blueAccent);
+    return Obx(() {
+      final list = controller.history;
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+      if (controller.loading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
 
+      if (list.isEmpty) {
+        return const Center(child: Text("No data"));
+      }
+
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+        shrinkWrap: true,
+
+        itemCount: list.length,
+        itemBuilder: (context, index) {
+          final item = list[index];
+          return _buildTile(item, isLast: index == list.length - 1);
+        },
+      );
+    });
+  }
+
+  Widget _buildTile(item, {bool isLast = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: EdgeInsets.only(
+        bottom: isLast ? 0 : 32,
+      ), // مسافة ممتازة بين العناصر زي الصورة
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              // Icon Container
+              /// Icon
               Container(
-                height: 48,
-                width: 48,
+                height: 60, // كبرت الأيقونة شوية عشان تظبط مع مقاس النص
+                width: 60,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(
-                    color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-                    width: 1.5,
-                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.grey.shade400, width: 2),
                 ),
-                child: Icon(
-                  icon,
-                  size: 28,
-                  color: isDark ? Colors.white : Colors.black87,
-                ),
+                child: Icon(_getIcon(item.name), size: 25),
               ),
-              const SizedBox(width: 15),
+              const SizedBox(width: 16),
 
-              // Label
+              /// Title
               Expanded(
-                flex: 3,
                 child: Text(
-                  label,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
+                  item.name,
+                  style: const TextStyle(
                     fontSize: 18,
-                    color: isDark ? Colors.white : Colors.black87,
+                    fontWeight: FontWeight.w500,
+                    fontStyle: FontStyle.italic, // الخط المائل
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
 
-              // Cases Badge
+              /// Cases Label (Pill shape)
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
                   borderRadius: BorderRadius.circular(20),
-                  color: isDark ? Colors.grey[800] : Colors.grey[200],
                 ),
                 child: Text(
-                  '$cases cases',
+                  "${item.cases} cases",
                   style: TextStyle(
                     fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.grey[300] : Colors.black54,
+                    color: Colors.grey.shade800,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
+              const SizedBox(width: 16),
 
-              const SizedBox(width: 12),
-
-              // Percentage Text
-              Text(
-                '${(percentage * 100).clamp(0, 100).toInt()}%',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: progressColor, // اللون بيتبع حالة الخطورة
+              /// Percentage
+              SizedBox(
+                width: 42, // تثبيت العرض عشان النسب تحت بعض تترتب صح
+                child: Text(
+                  "${item.percentage.toStringAsFixed(0)}%",
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
 
-          // Progress Indicator المحسن
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: LinearProgressIndicator(
-              value: percentage.clamp(0.0, 1.0), // Null Safety & Range check
-              backgroundColor: isDark ? Colors.grey[900] : Colors.grey[100],
-              valueColor: AlwaysStoppedAnimation<Color>(progressColor),
-              minHeight: 8,
+          const SizedBox(height: 14),
+
+          /// Progress bar
+          Padding(
+            padding: const EdgeInsets.only(left: 10, right: 0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: LinearProgressIndicator(
+                value: item.percentage / 100,
+                minHeight: 6,
+                backgroundColor: Colors.grey.shade200,
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+              ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  IconData _getIcon(String name) {
+    switch (name.toLowerCase()) {
+      case "scratches":
+        return Icons.remove;
+      case "cracks":
+        return Icons.bolt;
+      case "corrosion":
+        return Icons.water_drop_outlined;
+      case "pitting":
+        return Icons.hexagon_outlined;
+      case "rolled-in_scale":
+        return Icons.bug_report;
+      case "patches":
+        return Icons.bug_report;
+      default:
+        return Icons.bug_report;
+    }
   }
 }

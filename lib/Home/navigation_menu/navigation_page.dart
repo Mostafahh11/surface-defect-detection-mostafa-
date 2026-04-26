@@ -1,7 +1,7 @@
 import 'package:defectscan/Home/navigation_menu/app_bar_app/title_bar.dart';
 import 'package:defectscan/Home/navigation_menu/navigation_bar_widgets.dart';
-import 'package:defectscan/controller/Detection_Cont/detectionCont.dart';
 import 'package:defectscan/controller/profile_cont/profile_cont.dart';
+import 'package:defectscan/controller/scan_cont/detectionCont.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:defectscan/controller/navigation_controller/navigationbar_controller.dart';
