@@ -13,43 +13,47 @@ class RecentActivityPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text("Recent Activity"), centerTitle: true),
 
-      body: Obx(() {
-        final list = controller.recentactivity;
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await controller.loadCategories();
+        },
+        child: Obx(() {
+          final list = controller.recentactivity;
 
-        if (controller.loading.value && list.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
-        }
+          if (controller.loading.value && list.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        if (list.isEmpty) {
-          return const Center(child: Text("No activities yet."));
-        }
+          if (list.isEmpty) {
+            return const Center(child: Text("No activities yet."));
+          }
 
-        return ListView.builder(
-          itemCount: list.length,
-          padding: const EdgeInsets.all(10),
-          itemBuilder: (context, i) {
-            // أحدث أولًا
-            final scan = list[list.length - 1 - i];
+          final reversedList = list.reversed.toList();
 
-            // حسب الموديل بتاعك (عدّل لو الأسماء مختلفة)
-            final defectsCount = scan.totalDefects;
-            final accuracy = scan.totalImages;
+          return ListView.builder(
+            itemCount: reversedList.length,
+            padding: const EdgeInsets.all(10),
+            itemBuilder: (context, i) {
+              final scan = reversedList[i];
 
-            final isSuccess = scan.status == 'success' || defectsCount == 0;
+              final defectsCount = scan.totalDefects;
 
-            return ActivityItem(
-              id: "#${scan.scanId}",
-              title: scan.scanType,
-              time: scan.createdAt,
-              zone: "Zone A", 
-              defects: "$defectsCount",
-              percent: "$accuracy%",
-              icon: isSuccess ? Icons.check_circle : Icons.error_outline,
-              iconColor: isSuccess ? Colors.green : Colors.redAccent,
-            );
-          },
-        );
-      }),
+              final isSuccess = scan.status == 'completed';
+
+              return ActivityItem(
+                id: "#${scan.scanId}",
+                title: scan.scanType,
+                time: scan.createdAt,
+                zone: "Zone A",
+                defects: "$defectsCount",
+                percent: "${scan.totalImages} images",
+                icon: isSuccess ? Icons.check_circle : Icons.error_outline,
+                iconColor: isSuccess ? Colors.green : Colors.redAccent,
+              );
+            },
+          );
+        }),
+      ),
     );
   }
 }

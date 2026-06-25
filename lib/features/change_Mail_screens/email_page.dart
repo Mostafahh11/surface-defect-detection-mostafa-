@@ -1,4 +1,3 @@
-import 'package:defectscan/constants/colors/colors.dart';
 import 'package:defectscan/features/change_Mail_screens/change_mail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -35,7 +34,7 @@ class EmailAddressScreen extends StatelessWidget {
                 Get.to(() => ChangeEmailScreen());
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Mycolors.org,
+             
                 minimumSize: const Size(double.infinity, 55),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),

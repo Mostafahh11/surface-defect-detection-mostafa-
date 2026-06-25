@@ -19,7 +19,6 @@ class StorageService {
     await shared.setString("user", jsonEncode(user));
   }
 
-  // تحديث بيانات المستخدم فقط (اللي جاية من Me)
   static Future<void> updateUser(Map<String, dynamic> user) async {
     await shared.setString("user", jsonEncode(user));
   }
@@ -62,7 +61,7 @@ class StorageService {
   }
 
   // =========================
-  // 🚪 LOGOUT
+  //  LOGOUT
   // =========================
 
   static Future logout() async {

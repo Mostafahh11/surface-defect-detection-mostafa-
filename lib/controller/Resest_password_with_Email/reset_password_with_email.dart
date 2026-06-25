@@ -7,6 +7,7 @@ class ResetPasswordWithEmail extends GetxController {
   GlobalKey<FormState> formstate = GlobalKey();
   writegmail() {
     if (formstate.currentState!.validate()) {
+      
       Get.to(() => VerifyEmailScreenforauth(email: email.text));
     }
   }

@@ -1,4 +1,3 @@
-import 'package:defectscan/constants/colors/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -39,7 +38,7 @@ class AccountRemovedPage extends StatelessWidget {
                 Get.offAllNamed('mainscaffold');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Mycolors.org,
+                // backgroundColor: Mycolors.org,
                 minimumSize: const Size(double.infinity, 55),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),

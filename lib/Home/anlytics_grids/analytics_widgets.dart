@@ -1,9 +1,6 @@
-import 'package:defectscan/controller/statistics%20cont/stat.dart';
+import 'package:defectscan/controller/statistics cont/stat.dart';
 import 'package:flutter/material.dart';
 
-// ==========================================
-// 1. Quick Insights Widget (مطابق للصورة)
-// ==========================================
 class QuickInsightsWidget extends StatelessWidget {
   final double accuracy;
   final int totalScans;
@@ -17,31 +14,20 @@ class QuickInsightsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    // حساب المتبقي للهدف اليومي (افتراضي 60)
     int remaining = (60 - totalScans) > 0 ? 60 - totalScans : 0;
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? Colors.grey[900] : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? Colors.grey[800]! : Colors.grey.shade200,
-          width: 1.5,
-        ),
+        border: Border.all(width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // عنوان القسم
           Row(
             children: [
-              Icon(
-                Icons.trending_up,
-                color: isDark ? Colors.white : Colors.black87,
-                size: 26,
-              ),
+              Icon(Icons.trending_up, size: 26),
               const SizedBox(width: 10),
               Text(
                 "Quick insights",
@@ -55,7 +41,6 @@ class QuickInsightsWidget extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          // البصيرة الأولى: أفضل أداء
           _buildInsightRow(
             context: context,
             icon: Icons.workspace_premium_outlined,
@@ -72,7 +57,6 @@ class QuickInsightsWidget extends StatelessWidget {
             ),
           ),
 
-          // البصيرة الثانية: الهدف اليومي
           _buildInsightRow(
             context: context,
             icon: Icons.track_changes_outlined,
@@ -135,9 +119,6 @@ class QuickInsightsWidget extends StatelessWidget {
   }
 }
 
-// ==========================================
-// 2. Stat Card Grid Widget (مطابق للصورة)
-// ==========================================
 class StatCardWidget extends StatelessWidget {
   final StatCardData data;
 
@@ -145,14 +126,13 @@ class StatCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // تحديد لون نسبة التغير (أحمر لو سالب، أسود لو موجب)
     bool isNegative = data.trend.startsWith('-');
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: data.color, // الألوان القادمة من الكنترولر يفضل تكون باستيل
+        color: data.color, 
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -163,7 +143,6 @@ class StatCardWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // الأيقونة بخلفية أغمق قليلاً من لون الكارت
               CircleAvatar(
                 radius: 22,
                 backgroundColor: Colors.black.withOpacity(0.05),

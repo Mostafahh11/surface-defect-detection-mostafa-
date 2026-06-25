@@ -1,5 +1,4 @@
 import 'package:defectscan/Auth/presentation/pages/password_changed.dart';
-import 'package:defectscan/constants/colors/colors.dart';
 import 'package:defectscan/controller/reset_password_with_otp/reset_pass_otp.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -79,7 +78,7 @@ class VerifyEmailScreenforauth extends StatelessWidget {
                 Get.to(() => PasswordChangedPage());
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Mycolors.org,
+                // backgroundColor: Mycolors.org,
                 minimumSize: const Size(double.infinity, 55),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),

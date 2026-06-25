@@ -11,7 +11,6 @@ class HistoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-
     final DefectCategoryController controller = Get.put(
       DefectCategoryController(),
     );
@@ -22,7 +21,6 @@ class HistoryPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 10),
-          // عنوان الصفحة
           Center(
             child: Text(
               'History',
@@ -43,7 +41,6 @@ class HistoryPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // قسم التصنيفات - خليناه Obx عشان يحدث نفسه أول ما الداتا تيجي
           Expanded(
             flex: 3,
             child: Container(
@@ -54,7 +51,7 @@ class HistoryPage extends StatelessWidget {
                   color: colorScheme.outlineVariant.withOpacity(0.4),
                 ),
               ),
-              child: ClipRRect(
+              child: ClipRRect(               
                 borderRadius: BorderRadius.circular(24),
                 child: DefectCategoryList(controller: controller),
               ),
@@ -63,7 +60,7 @@ class HistoryPage extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          // قسم النشاطات الأخيرة
+          // قسم  الأخيرة
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

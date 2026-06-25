@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:defectscan/Model/historymodel.dart';
 import 'package:defectscan/Model/login_response.dart';
 import 'package:defectscan/Model/recent_activity_model.dart';
+import 'package:defectscan/Model/scansmodel/responsemodel.dart';
+import 'package:defectscan/Model/user_model.dart';
 import 'package:defectscan/core/service/sharedpreff.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -11,10 +13,6 @@ import 'package:defectscan/Api/api_linkes.dart';
 class ApiService {
   static Future<LoginResponse> login(String email, String password) async {
     final bodyData = {"email": email, "password": password};
-
-    // 1️⃣ اطبع اللي بتبعتُه للسيرفر
-    debugPrint("🚀 Sending to Server: $bodyData");
-
     final response = await http.post(
       Uri.parse(ApiLinkes.login),
       headers: {
@@ -23,10 +21,6 @@ class ApiService {
       },
       body: jsonEncode(bodyData),
     );
-
-    // 2️⃣ اطبع اللي راجع من السيرفر قبل أي معالجة
-    debugPrint("📥 Raw Response from Server: ${response.body}");
-
     if (response.statusCode == 200) {
       final body = json.decode(response.body);
       return LoginResponse.fromJson(body);
@@ -78,11 +72,10 @@ class ApiService {
         "Accept": "application/json",
         "Content-Type": "application/json",
       },
-      body: jsonEncode({"email": email}), // [cite: 62]
+      body: jsonEncode({"email": email}),
     );
   }
 
-  // 2. دالة التحقق من الكود
   static Future<bool> verifyEmailOTP(String email, String code) async {
     final response = await http.post(
       Uri.parse(ApiLinkes.verifyEmail),
@@ -90,13 +83,10 @@ class ApiService {
         "Accept": "application/json",
         "Content-Type": "application/json",
       },
-      body: jsonEncode({
-        "email": email, // [cite: 77]
-        "code": code, // [cite: 78]
-      }),
+      body: jsonEncode({"email": email, "code": code}),
     );
 
-    return response.statusCode == 200; // [cite: 79, 80]
+    return response.statusCode == 200;
   }
 
   //? send code again
@@ -117,29 +107,30 @@ class ApiService {
     }
   }
 
-  // me
-  static Future<Map<String, dynamic>?> getMe() async {
+  //! me
+  static Future<UserModel?> getMe() async {
     String? token = StorageService.shared.getString("token");
 
-    final response = await http.get(
-      Uri.parse(ApiLinkes.me),
-      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
-    );
+    try {
+      final response = await http.get(
+        Uri.parse(ApiLinkes.me),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      );
 
-    if (response.statusCode != 200) return null;
-
-    var body = jsonDecode(response.body);
-    if (body is Map<String, dynamic>) {
-      if (body['data'] != null) {
-        body = body['data'];
+      if (response.statusCode != 200) {
+        return null;
       }
-      if (body['user'] != null) {
-        body = body['user'];
-      }
-      return Map<String, dynamic>.from(body);
+      var body = jsonDecode(
+        response.body,
+      ); // hena gebna bynat el user we etkhznet
+      UserModel user = UserModel.fromJson(body['user']); // htnaha fy el model
+      return user;
+    } catch (e) {
+      throw Exception("Failed to fetch user data: $e");
     }
-
-    return null;
   }
 
   // log out
@@ -148,14 +139,13 @@ class ApiService {
 
     try {
       final response = await http.post(
-        Uri.parse(ApiLinkes.logout), // تأكد إن اللينك ده موجود في ApiLinkes
+        Uri.parse(ApiLinkes.logout),
         headers: {
           "Authorization": "Bearer $token",
           "Accept": "application/json",
         },
       );
 
-      // بنرجع true لو السيرفر رد بـ 200 (نجاح) أو حتى لو 401 (لأنه كدة كدة التوكن ملوش لازمة)
       return response.statusCode == 200 || response.statusCode == 401;
     } catch (e) {
       return false;
@@ -170,9 +160,7 @@ class ApiService {
   }) async {
     try {
       String? token = StorageService.shared.getString("token");
-      var uri = Uri.parse(
-        "https://lightgreen-crane-116703.hostingersite.com/api/profile",
-      );
+      var uri = Uri.parse(ApiLinkes.profile);
 
       // Use standard PUT for text data
       var response = await http.put(
@@ -190,36 +178,32 @@ class ApiService {
     }
   }
 
-  // 2. Upload Avatar (POST)
-  // عدل الدالة دي لترجع Map بدل bool
-  static Future<Map<String, dynamic>?> uploadAvatar(File imageFile) async {
-    try {
-      String? token = StorageService.shared.getString("token");
-      var uri = Uri.parse(
-        "https://lightgreen-crane-116703.hostingersite.com/api/upload-avatar",
-      );
+  // static Future<Map<String, dynamic>?> uploadAvatar(File imageFile) async {
+  //   try {
+  //     String? token = StorageService.shared.getString("token");
+  //     var uri = Uri.parse(ApiLinkes.uploadavatar);
 
-      var request = http.MultipartRequest('POST', uri);
-      request.headers.addAll({
-        "Authorization": "Bearer $token",
-        "Accept": "application/json",
-      });
-      request.files.add(
-        await http.MultipartFile.fromPath('avatar', imageFile.path),
-      );
+  //     var request = http.MultipartRequest('POST', uri);
+  //     request.headers.addAll({
+  //       "Authorization": "Bearer $token",
+  //       "Accept": "application/json",
+  //     });
+  //     request.files.add(
+  //       await http.MultipartFile.fromPath('avatar', imageFile.path),
+  //     );
 
-      var response = await http.Response.fromStream(await request.send());
+  //     var response = await http.Response.fromStream(await request.send());
 
-      if (response.statusCode == 200) {
-        return jsonDecode(
-          response.body,
-        ); // هترجع الـ JSON اللي فيه رابط الصورة الجديدة
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
-  }
+  //     if (response.statusCode == 200) {
+  //       return jsonDecode(
+  //         response.body,
+  //       ); // هترجع الـ JSON اللي فيه رابط الصورة الجديدة
+  //     }
+  //     return null;
+  //   } catch (e) {
+  //     return null;
+  //   }
+  // }
 
   //? user setting
   static Future<bool> updateUserSettings(Map<String, dynamic> settings) async {
@@ -242,47 +226,59 @@ class ApiService {
   }
 
   //!============================================================================//
-  static Future<Map<String, dynamic>?> detectDefect(File imageFile) async {
-    try {
-      String? token = StorageService.shared.getString("token");
-      var uri = Uri.parse(ApiLinkes.detectDefect);
+ static Future<DefectResponse?> detectDefect(File imageFile) async {
+  try {
+    String? token = StorageService.shared.getString("token");
 
-      var request = http.MultipartRequest('POST', uri);
-      request.headers.addAll({
-        "Authorization": "Bearer $token",
-        "Accept": "application/json",
-      });
+    var uri = Uri.parse(
+      'https://lightgreen-crane-116703.hostingersite.com/api/scans/detect-defect',
+    );
 
-      request.files.add(
-        await http.MultipartFile.fromPath('image', imageFile.path),
-      );
+    var request = http.MultipartRequest('POST', uri);
 
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
+    request.headers.addAll({
+      "Authorization": "Bearer $token",
+      "Accept": "application/json",
+    });
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      }
-      return null;
-    } catch (e) {
-      debugPrint("Error in Detect Defect: $e");
-      return null;
+    request.files.add(
+      await http.MultipartFile.fromPath('image', imageFile.path),
+    );
+
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+
+    debugPrint("Status Code: ${response.statusCode}");
+    debugPrint("Body: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+
+      return DefectResponse.fromJson(jsonData);
     }
-  }
 
+    return null;
+  } catch (e) {
+    debugPrint("Error in Detect Defect: $e");
+    return null;
+  }
+}
+
+  //====================================================================//
   static Future<List> getScans() async {
     try {
       String? token = StorageService.shared.getString("token");
 
       var response = await http.get(
-        Uri.parse(ApiLinkes.allScans), // 👈 /api/scans
+        Uri.parse(ApiLinkes.allScans),
         headers: {
           "Authorization": "Bearer $token",
           "Accept": "application/json",
         },
       );
 
-      debugPrint("📩 getScans: ${response.body}");
+      debugPrint("getScans: ${response.body}"); //? getting scanss
+      //? getting scanss
 
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
@@ -295,9 +291,6 @@ class ApiService {
           }
           if (data['scans'] != null) {
             data = data['scans'];
-          }
-          if (data is List) {
-            return data;
           }
         }
 
@@ -312,94 +305,61 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>?> getScanStatistics() async {
+ 
+
+  //?====================================================================?//
+  static Future<List<Historymodel>> getDefectCategories() async {
     try {
-      String? token = StorageService.shared.getString("token");
+      final token = StorageService.shared.getString("token");
+
       final response = await http.get(
-        Uri.parse(ApiLinkes.scanStatistics),
+        Uri.parse("${ApiLinkes.baseurl}/user-statistics/history"),
         headers: {
           "Authorization": "Bearer $token",
           "Accept": "application/json",
         },
       );
 
-      if (response.statusCode != 200) return null;
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
 
-      var data = jsonDecode(response.body);
-      if (data is Map<String, dynamic>) {
-        if (data['data'] != null) {
-          data = data['data'];
-        }
-        if (data['scan_statistics'] != null) {
-          data = data['scan_statistics'];
-        }
-        if (data is Map<String, dynamic>) {
-          return Map<String, dynamic>.from(data);
-        }
+        final List data = json["defectCategories"] ?? [];
+
+        return data.map((e) => Historymodel.fromJson(e)).toList();
       }
 
-      return null;
+      return [];
     } catch (e) {
-      debugPrint(" Error fetching stats: $e");
-      return null;
+      debugPrint("Error fetching categories: $e");
+      return [];
     }
   }
 
-  // أضف هذه الدالة داخل كلاس ApiService
- static Future<List<Historymodel>> getDefectCategories() async {
-  try {
-    final token = StorageService.shared.getString("token");
+  //?============================================================================?//
+  static Future<List<RecentActivityModel>> getrecentactivity() async {
+    try {
+      final token = StorageService.shared.getString("token");
 
-    final response = await http.get(
-      Uri.parse("${ApiLinkes.baseurl}/user-statistics/history"),
-      headers: {
-        "Authorization": "Bearer $token",
-        "Accept": "application/json",
-      },
-    );
+      final response = await http.get(
+        Uri.parse("${ApiLinkes.baseurl}/user-statistics/recent_activity"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
 
-      final List data = json["defectCategories"] ?? [];
+        final List data = json["recentActivity"] ?? [];
 
-      return data
-          .map((e) => Historymodel.fromJson(e))
-          .toList();
+        return data.map((e) => RecentActivityModel.fromJson(e)).toList();
+      }
+
+      return [];
+    } catch (e) {
+      debugPrint("Error fetching categories: $e");
+      return [];
     }
-
-    return [];
-  } catch (e) {
-    debugPrint("Error fetching categories: $e");
-    return [];
   }
-}
- static Future<List<RecentActivityModel>> getrecentactivity() async {
-  try {
-    final token = StorageService.shared.getString("token");
-
-    final response = await http.get(
-      Uri.parse("${ApiLinkes.baseurl}/user-statistics/history"),
-      headers: {
-        "Authorization": "Bearer $token",
-        "Accept": "application/json",
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-
-      final List data = json["defectCategories"] ?? [];
-
-      return data
-          .map((e) => RecentActivityModel.fromJson(e))
-          .toList();
-    }
-
-    return [];
-  } catch (e) {
-    debugPrint("Error fetching categories: $e");
-    return [];
-  }
-}
 }

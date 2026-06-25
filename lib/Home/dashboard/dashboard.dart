@@ -1,13 +1,12 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:defectscan/Home/dashboard/dashboard_widgets.dart';
-import 'package:defectscan/core/service/sharedpreff.dart';
 import 'package:flutter/material.dart';
 
-class Dashboard extends StatelessWidget {
-  Dashboard({super.key});
 
-  final StorageService sharedpreff = StorageService();
+
+class Dashboard extends StatelessWidget {
+ const Dashboard({super.key});
+
+
 
   @override
   Widget build(BuildContext context) {

@@ -1,8 +1,7 @@
 import 'package:defectscan/Home/reports/gauge_chart.dart';
 import 'package:defectscan/Home/reports/pie_chart.dart';
 import 'package:defectscan/Home/reports/statistics_chart.dart';
-import 'package:defectscan/constants/colors/colors.dart';
-import 'package:defectscan/controller/statistics%20cont/stat.dart';
+import 'package:defectscan/controller/statistics cont/stat.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,39 +10,22 @@ class DetailedReportPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statisticsController = Get.isRegistered<StatisticsController>()
-        ? Get.find<StatisticsController>()
-        : Get.put(StatisticsController());
+    final statisticsController = Get.put(StatisticsController());
+   
+   
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text("Detailed Report"),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
       ),
       body: SafeArea(
         child: Obx(() {
-          // جلب بيانات آخر فحص بأمان
-          final latest = statisticsController.scans.isNotEmpty
-              ? Map<String, dynamic>.from(statisticsController.scans.last)
-              : <String, dynamic>{};
-
-          final totalScans = statisticsController.scans.length;
-
-          // استخراج الأعداد مباشرة من الـ Map (بدلاً من الدوال الممسوحة)
           int passedCount =
-              int.tryParse(
-                (latest['passed_count'] ?? latest['passed'] ?? 0).toString(),
-              ) ??
-              0;
+              int.tryParse((statisticsController.passedCount).toString()) ?? 0;
           int defectsCount =
-              int.tryParse(
-                (latest['defect_count'] ?? latest['defects'] ?? 0).toString(),
-              ) ??
-              0;
+              int.tryParse((statisticsController.defectCount).toString()) ?? 0;
 
           return ListView(
             padding: const EdgeInsets.all(15),
@@ -67,7 +49,6 @@ class DetailedReportPage extends StatelessWidget {
 
               const SizedBox(height: 10),
 
-              // 1. Performance Trend Chart
               Container(
                 padding: const EdgeInsets.all(16),
                 height: 320,
@@ -92,14 +73,14 @@ class DetailedReportPage extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Mycolors.org,
+                            // color: Mycolors.org,
                           ),
                         ),
                         MaterialButton(
                           onPressed: () {
                             statisticsController.exportStatistics();
                           },
-                          color: Mycolors.org,
+                          color: Colors.black,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -126,7 +107,6 @@ class DetailedReportPage extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Result Pie Chart Card
                     Expanded(
                       child: Container(
                         padding: const EdgeInsets.all(12),
@@ -155,20 +135,8 @@ class DetailedReportPage extends StatelessWidget {
                             const SizedBox(height: 10),
                             SizedBox(
                               height: 130,
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Text(
-                                    "$totalScans",
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  ResultPieChart(
-                                    controller: statisticsController,
-                                  ),
-                                ],
+                              child: ResultPieChart(
+                                controller: statisticsController,
                               ),
                             ),
                             const SizedBox(height: 15),
@@ -177,7 +145,6 @@ class DetailedReportPage extends StatelessWidget {
                               spacing: 8,
                               alignment: WrapAlignment.center,
                               children: [
-                                // استخدام المتغيرات اللي استخرجناها فوق
                                 _valueWithText(
                                   passedCount,
                                   "Healthy",
@@ -222,7 +189,7 @@ class DetailedReportPage extends StatelessWidget {
                             Text(
                               "${statisticsController.accuracy}%",
                               style: TextStyle(
-                                color: Mycolors.org,
+                                // color: Mycolors.org,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
                               ),

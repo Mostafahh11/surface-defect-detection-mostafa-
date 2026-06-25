@@ -1,4 +1,3 @@
-import 'package:defectscan/constants/colors/colors.dart';
 import 'package:defectscan/profile/change_number/number_changed.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -46,7 +45,7 @@ class ChangeNumberPage extends StatelessWidget {
                 Get.to(() => PhoneChangedSuccess());
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Mycolors.org,
+                // backgroundColor: Mycolors.org,
                 minimumSize: const Size(double.infinity, 55),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),

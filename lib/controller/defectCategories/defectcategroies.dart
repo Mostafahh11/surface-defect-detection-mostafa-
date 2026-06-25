@@ -17,12 +17,10 @@ class DefectCategoryController extends GetxController {
 
   Future<void> loadCategories() async {
     loading.value = true;
-
     final result = await ApiService.getDefectCategories();
     history.value = result;
     final result2 = await ApiService.getrecentactivity();
     recentactivity.value = result2;
-
     loading.value = false;
   }
 }

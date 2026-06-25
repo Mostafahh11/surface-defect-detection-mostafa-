@@ -43,7 +43,7 @@ class Entryscreen extends StatelessWidget {
                     onPressed: () {
                       Get.to(() => LoginPage());
                     },
-                    color: Mycolors.org,
+                    color: DeepSea.org,
                     child: Text(
                       "sign in",
                       style: TextStyle(color: Colors.white),

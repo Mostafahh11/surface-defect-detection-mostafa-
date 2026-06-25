@@ -6,41 +6,39 @@ import 'package:defectscan/controller/theme_cont/theme_cont.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:defectscan/controller/profile_cont/profile_cont.dart';
-import 'package:defectscan/controller/statistics%20cont/stat.dart';
-// اعمل import لملف الـ ThemeController بتاعك هنا
+import 'package:defectscan/controller/statistics cont/stat.dart';
 
 Widget profileCard(BuildContext context) {
-  // 1. استدعاء الكنترولرات بأمان من داخل الدالة
-  final profController = Get.isRegistered<ProfileCont>()
-      ? Get.find<ProfileCont>()
-      : Get.put(ProfileCont());
-  final statController = Get.isRegistered<StatisticsController>()
-      ? Get.find<StatisticsController>()
-      : Get.put(StatisticsController());
-  final themeController = Get.find<ThemeController>();
+  final profController = Get.find<ProfileCont>();
+  final statController = Get.find<StatisticsController>();
+  final themecont = Get.find<ThemeController>();
+  final isDark = themecont.isDarkMode.value;
 
   return Obx(() {
-    int totalScans = statController.scans.length;
-    
-    double successRate =
-        double.tryParse(
-          (statController.stats['success_rate'] ?? 20).toString(),
-        ) ??
-        0.0;
-    double progressFraction = (totalScans / 60).clamp(0.0, 1.0);
+    int todayscan = profController.todayscans;
+    String userrole = profController.roleTitle;
+    double progressFraction = (todayscan / 60);
 
-    bool isDark = themeController.isDarkMode.value;
-    String userName = profController.name.value.isNotEmpty
-        ? profController.name.value
-        : "User";
-
+    String userName = profController.name;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? Theme.of(context).colorScheme.primary : Mycolors.org,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(24),
+        color: isDark ? Colors.white.withOpacity(0.06) : DeepSea.org,
+        border: Border.all(
+          color: isDark ? Colors.white.withOpacity(0.12) : Colors.grey.shade200,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withOpacity(0.2)
+                : Colors.grey.withOpacity(0.30),
+            blurRadius: 20,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -51,20 +49,24 @@ Widget profileCard(BuildContext context) {
                 'Good Morning 👋',
                 style: TextStyle(
                   fontSize: 15,
-                  color: isDark ? Colors.grey : Colors.white,
+                  color: isDark
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.white,
                 ),
               ),
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.white12,
+                  color: isDark ? Colors.white.withOpacity(0.06) : Colors.grey,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'Level 5',
+                  userrole,
                   style: TextStyle(
                     fontSize: 15,
-                    color: isDark ? Colors.grey : Colors.white,
+                    color: isDark
+                        ? Theme.of(context).colorScheme.secondary
+                        : Colors.white,
                   ),
                 ),
               ),
@@ -72,20 +74,23 @@ Widget profileCard(BuildContext context) {
           ),
           const SizedBox(height: 8),
 
-          // الاسم بيتقرأ صح من البروفايل دلوقتي
           Text(
             userName,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: isDark ? Colors.grey : Colors.white,
+              color: isDark
+                  ? Theme.of(context).colorScheme.secondary
+                  : Colors.grey[50],
             ),
           ),
           Text(
             'Senior Quality Inspector',
             style: TextStyle(
               fontSize: 13,
-              color: isDark ? Colors.grey : Colors.white,
+              color: isDark
+                  ? Theme.of(context).colorScheme.secondary
+                  : Colors.white,
             ),
           ),
           const SizedBox(height: 25),
@@ -99,15 +104,20 @@ Widget profileCard(BuildContext context) {
                     'Today\'s scans',
                     style: TextStyle(
                       fontSize: 14,
-                      color: isDark ? Colors.grey : Colors.white,
+                      fontWeight: FontWeight.w500,
+                      color: isDark
+                          ? Theme.of(context).colorScheme.secondary
+                          : Colors.white,
                     ),
                   ),
                   Text(
-                    '$totalScans/60',
+                    '$todayscan/60',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.grey : Colors.white,
+                      color: isDark
+                          ? Theme.of(context).colorScheme.secondary
+                          : Colors.white,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -130,17 +140,22 @@ Widget profileCard(BuildContext context) {
                     'Success rate',
                     style: TextStyle(
                       fontSize: 14,
-                      color: isDark ? Colors.grey : Colors.white,
+                      fontWeight: FontWeight.w500,
+                      color: isDark
+                          ? Theme.of(context).colorScheme.secondary
+                          : Colors.white,
                     ),
                   ),
                   Row(
                     children: [
                       Text(
-                        '${successRate.toInt()}%',
+                        '${statController.accuracy}%',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.grey : Colors.white,
+                          color: isDark
+                              ? Theme.of(context).colorScheme.secondary
+                              : Colors.white,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -148,7 +163,7 @@ Widget profileCard(BuildContext context) {
                         height: 24,
                         width: 24,
                         child: CircularProgressIndicator(
-                          value: successRate / 100,
+                          value: statController.accuracy / 100,
                           strokeWidth: 3,
                           color: Colors.blue,
                           backgroundColor: Colors.white30,

@@ -1,14 +1,18 @@
 import 'dart:io';
 import 'package:defectscan/Api/api.dart';
 import 'package:defectscan/Home/Defect_images/scanResultScreen.dart';
+import 'package:defectscan/Model/scansmodel/responsemodel.dart';
+import 'package:defectscan/controller/statistics%20cont/stat.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ScanController extends GetxController {
   final ImagePicker _picker = ImagePicker();
   var isScanning = false.obs;
-
-  // متغيرات الصور
+   final StatisticsController statcont = Get.isRegistered<StatisticsController>()
+      ? Get.find<StatisticsController>()
+      : Get.put(StatisticsController());
   Rxn<File> cameraImage = Rxn<File>();
   Rxn<File> galleryImage = Rxn<File>();
   Rxn<File> originalImageForReport = Rxn<File>();
@@ -38,16 +42,17 @@ class ScanController extends GetxController {
       isScanning.value = true;
       originalImageForReport.value = file;
 
-      var result = await ApiService.detectDefect(
-        file,
-      ); // ميثود التحليل في الـ API
+      DefectResponse? result = await ApiService.detectDefect(file); 
 
-      if (result != null && result['success'] == true) {
-        var data = result['data'];
-        annotatedImageBase64.value =
-            data['prediction']['annotated_image'] ?? "";
-        defectType.value = data['prediction']['class'] ?? "Unknown";
-        confidence.value = (data['prediction']['confidence'] ?? 0.0) * 100;
+      debugPrint('Result = $result');
+
+      if (result != null && result.success == true) {
+          statcont.statistics.value = result.data.statistics;
+          annotatedImageBase64.value = result.data.image.annotatedImage;
+
+          defectType.value = result.data.pre.defectClass;
+
+          confidence.value = result.data.pre.confidence;
 
         Get.to(() => ScanResultScreen());
       } else {
@@ -60,7 +65,7 @@ class ScanController extends GetxController {
     } catch (e) {
       Get.snackbar(
         "Error",
-        "Check your internet connection",
+        "Check your internet connection $e",
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {

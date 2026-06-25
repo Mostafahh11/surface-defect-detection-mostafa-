@@ -5,10 +5,10 @@ import 'package:defectscan/core/functions/validation/validation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class typeEmailtochangepassword extends StatelessWidget {
+class forgetpassword extends StatelessWidget {
   final controller = Get.put(ResetPasswordWithEmail());
 
-  typeEmailtochangepassword({super.key});
+  forgetpassword({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class typeEmailtochangepassword extends StatelessWidget {
                 controller.writegmail();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Mycolors.org,
+                backgroundColor: DeepSea.org,
                 minimumSize: const Size(double.infinity, 55),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),

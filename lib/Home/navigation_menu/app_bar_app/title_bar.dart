@@ -1,4 +1,4 @@
-import 'dart:convert'; // مهم عشان فك تشفير الـ Base64
+import 'package:defectscan/Home/navigation_menu/app_bar_app/notification_widget.dart';
 import 'package:defectscan/controller/profile_cont/profile_cont.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -27,35 +27,15 @@ class Titlebar extends StatelessWidget {
           ),
           Row(
             children: [
-              const Icon(Icons.notifications_none_outlined),
+              notification_widget(),
               const SizedBox(width: 15),
 
-              // الأفاتار مع الـ Obx
-              Obx(() {
-                final imageStr = controller.profileImageBase64.value;
-                ImageProvider? imageProvider;
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: Colors.grey[200],
 
-                // 1. معالجة الصورة بشكل آمن (سواء كانت رابط أو Base64)
-                if (imageStr.isNotEmpty) {
-                  if (imageStr.startsWith('http')) {
-                    imageProvider = NetworkImage(imageStr);
-                  } else {
-                    try {
-                      imageProvider = MemoryImage(base64Decode(imageStr));
-                    } catch (_) {}
-                  }
-                }
-
-                // 2. عرض الـ CircleAvatar
-                return CircleAvatar(
-                  radius: 20,
-                  backgroundColor: Colors.grey[200],
-                  backgroundImage: imageProvider,
-                  child: imageProvider == null
-                      ? const Icon(Icons.person, size: 20, color: Colors.blue)
-                      : null,
-                );
-              }),
+                child: Icon(Icons.person, size: 20, color: Colors.blue),
+              ),
             ],
           ),
         ],

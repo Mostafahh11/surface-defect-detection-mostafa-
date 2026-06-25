@@ -1,10 +1,8 @@
-import 'dart:convert'; // ضروري عشان الـ base64Decode
 import 'package:defectscan/profile/profile_page/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:defectscan/controller/profile_cont/profile_cont.dart';
 
-// --- الـ Header بشكل فخم ونظيف ---
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({super.key});
 
@@ -12,89 +10,71 @@ class ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final profcontroller = Get.find<ProfileCont>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Obx(() {
-      // 1. كل العمليات المنطقية بتتعمل هنا قبل الـ return
-      final imageStr = profcontroller.profileImageBase64.value;
-      ImageProvider? imageProvider;
-
-      if (imageStr.isNotEmpty) {
-        if (imageStr.startsWith('http')) {
-          imageProvider = NetworkImage(imageStr); // صورة من السيرفر
-        } else {
-          try {
-            imageProvider = MemoryImage(base64Decode(imageStr)); // صورة Base64
-          } catch (_) {}
-        }
-      }
-
-      // 2. هنا بنبدأ نرسم الـ UI بعد ما جهزنا الـ imageProvider
-      return Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: isDark ? Colors.grey[900] : Colors.white,
-          borderRadius: BorderRadius.circular(25),
-          boxShadow: [
-            if (!isDark)
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 15,
-                offset: const Offset(0, 5),
-              ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // عرض الصورة المختارة أو أيقونة افتراضية
-            CircleAvatar(
-              radius: 35,
-              backgroundColor: Colors.blue.withOpacity(0.1),
-              backgroundImage: imageProvider, // حطينا المتغير الجاهز هنا
-              child: imageProvider == null
-                  ? const Icon(Icons.person, size: 40, color: Colors.blue)
-                  : null,
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.grey[900] : Colors.white,
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          if (!isDark)
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
             ),
-            const SizedBox(width: 15),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    profcontroller.name.value.isEmpty
-                        ? "Mostafa"
-                        : profcontroller.name.value,
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 35,
+            backgroundColor: Colors.blue.withOpacity(0.1),
+            child: Icon(Icons.person, size: 40, color: Colors.blue),
+          ),
+          const SizedBox(width: 15),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Obx(
+                  () => Text(
+                    profcontroller.name,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Text(
-                    profcontroller.email.value,
+                ),
+
+                Obx(
+                  () => Text(
+                    profcontroller.email,
                     style: TextStyle(color: Colors.grey[500], fontSize: 14),
                     overflow: TextOverflow.ellipsis,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            IconButton(
-              onPressed: () {
-                Get.to(() => MyProfileScreen());
-              }, 
-              icon: const Icon(
-                Icons.edit_note_rounded,
-                color: Colors.blue,
-                size: 28,
-              ),
+          ),
+
+          IconButton(
+            onPressed: () {
+              Get.to(() => MyProfileScreen());
+            },
+            icon: const Icon(
+              Icons.edit_note_rounded,
+              color: Colors.blue,
+              size: 28,
             ),
-          ],
-        ),
-      );
-    });
+          ),
+        ],
+      ),
+    );
   }
 }
 
-// --- SettingTile ---
 class SettingTile extends StatelessWidget {
   final String title;
   final IconData icon;
@@ -134,7 +114,8 @@ class SettingTile extends StatelessWidget {
           color: isDark ? Colors.white : Colors.black87,
         ),
       ),
-      trailing: trailing ??
+      trailing:
+          trailing ??
           const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
     );
   }

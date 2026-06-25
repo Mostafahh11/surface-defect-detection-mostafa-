@@ -1,6 +1,7 @@
 import 'package:defectscan/Home/anlytics_grids/analytics_widgets.dart';
 import 'package:defectscan/Home/reports/reports_page.dart';
-import 'package:defectscan/controller/statistics%20cont/stat.dart';
+import 'package:defectscan/controller/profile_cont/profile_cont.dart';
+import 'package:defectscan/controller/statistics cont/stat.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -9,14 +10,16 @@ class AnalyticsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statsController = Get.isRegistered<StatisticsController>()
-        ? Get.find<StatisticsController>()
-        : Get.put(StatisticsController());
-
+    final statsController = Get.find<StatisticsController>();
+    final profilecont = Get.find<ProfileCont>();
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Obx(() {
+          if (statsController.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
           return ListView(
             children: [
               const SizedBox(height: 20),
@@ -45,10 +48,9 @@ class AnalyticsGrid extends StatelessWidget {
 
               const SizedBox(height: 18),
 
-              // صندوق الرؤى السريعة الجديد (Quick Insights)
               QuickInsightsWidget(
                 accuracy: statsController.accuracy,
-                totalScans: statsController.scans.length,
+                totalScans: profilecont.todayscans,
               ),
 
               const SizedBox(height: 15),

@@ -1,4 +1,4 @@
-import 'package:defectscan/Auth/presentation/pages/reset_pasword_with_email.dart';
+import 'package:defectscan/Auth/presentation/pages/forget_password.dart';
 import 'package:defectscan/Auth/presentation/pages/signup_page.dart';
 import 'package:defectscan/Auth/widgets/widgets.dart';
 import 'package:defectscan/controller/login_cont/login_cont.dart';
@@ -75,7 +75,7 @@ class LoginPage extends StatelessWidget {
                             ),
                             TextButton(
                               onPressed: () {
-                                Get.to(() => typeEmailtochangepassword());
+                                Get.to(() => forgetpassword());
                               },
                               child: Text(
                                 "Forget Password?",
@@ -165,7 +165,7 @@ class LoginPage extends StatelessWidget {
                   Text("Don't have an account?"),
                   TextButton(
                     onPressed: () {
-                      Get.to(() => RegisterPage());
+                      Get.off(() => RegisterPage());
                     },
                     child: Text(
                       "Sign up",

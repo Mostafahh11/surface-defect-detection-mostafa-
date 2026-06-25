@@ -30,7 +30,7 @@ class LoginCont extends GetxController {
     } catch (error) {
       Get.snackbar(
         "ERROR",
-        error.toString(),
+        'Wrong Email Or Password',
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );

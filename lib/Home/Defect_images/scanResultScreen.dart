@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:defectscan/controller/scan_cont/detectionCont.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,7 +16,6 @@ class ScanResultScreen extends StatelessWidget {
           children: [
             const SizedBox(height: 20),
 
-            // Original Image (Before)
             Obx(() {
               if (controller.originalImageForReport.value == null) {
                 return const SizedBox.shrink();
@@ -31,15 +29,14 @@ class ScanResultScreen extends StatelessWidget {
               );
             }),
 
-            // Annotated Image (After)
             Obx(() {
               if (controller.annotatedImageBase64.isEmpty) {
                 return const SizedBox.shrink();
               }
               return _buildImageSection(
                 title: "Annotated Image (After)",
-                child: Image.memory(
-                  base64Decode(controller.annotatedImageBase64.value),
+                child: Image.network(
+                  controller.annotatedImageBase64.value,
                   fit: BoxFit.cover,
                 ),
               );
@@ -68,7 +65,7 @@ class ScanResultScreen extends StatelessWidget {
             ),
           ),
           Container(
-            height: 250,
+            height: 280,
             width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
@@ -100,7 +97,7 @@ class ScanResultScreen extends StatelessWidget {
         children: [
           _infoRow("Defect Type", controller.defectType.value),
           const Divider(),
-          _infoRow("Confidence", "${(controller.confidence.value) / 100}%"),
+          _infoRow("Confidence", "${(controller.confidence.value)}%"),
         ],
       ),
     );

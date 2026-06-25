@@ -16,27 +16,16 @@ class ResultPieChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (controller.stats.isEmpty) {
-        return const Center(
-          child: Text("No data"),
-        );
+      if (controller.statistics.value==null) {
+        return const Center(child: Text("No data"));
       }
-
-      final stats = controller.stats;
-
-      double passed = _toDouble(stats['passedCount']);
-      double defects = _toDouble(stats['defectCount']);
+      double passed = _toDouble(controller.passedCount);
+      double defects = _toDouble(controller.defectCount);
 
       double total = passed + defects;
+      double passedPercent = total == 0 ? 0.0 : ((passed / total) * 100);
+      double defectPercent = total == 0 ? 0.0 : ((defects / total) * 100);
 
-      /// تحويل لنسب %
-      double passedPercent =
-          total == 0 ? 0.0 : ((passed / total) * 100);
-
-      double defectPercent =
-          total == 0 ? 0.0 : ((defects / total) * 100);
-
-      /// fallback لو مفيش داتا
       if (passedPercent == 0 && defectPercent == 0) {
         passedPercent = 100;
         defectPercent = 0;
@@ -49,7 +38,6 @@ class ResultPieChart extends StatelessWidget {
             sectionsSpace: 4,
             centerSpaceRadius: 40,
             sections: [
-              /// ✅ Passed
               PieChartSectionData(
                 value: passedPercent,
                 color: Colors.green,
@@ -61,7 +49,6 @@ class ResultPieChart extends StatelessWidget {
                 ),
               ),
 
-              /// ❌ Defects
               PieChartSectionData(
                 value: defectPercent,
                 color: Colors.redAccent,

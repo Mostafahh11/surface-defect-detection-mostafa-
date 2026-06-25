@@ -6,11 +6,6 @@ import 'package:get/get.dart';
 class StorageGauge extends StatelessWidget {
   const StorageGauge({super.key});
 
-  double _toDouble(dynamic value) {
-    if (value == null) return 0.0;
-    return double.tryParse(value.toString()) ?? 0.0;
-  }
-
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<StatisticsController>();
@@ -18,20 +13,13 @@ class StorageGauge extends StatelessWidget {
     return SizedBox(
       height: 180,
       child: Obx(() {
-        if (controller.stats.isEmpty) {
+        if (controller.statistics.value== null) {
           return const Center(child: Text("No data"));
         }
-
-        final stats = controller.stats;
-
-        double accuracy = _toDouble(stats['accuracy']);
-
-        /// حماية
+        double accuracy = controller.accuracy;
         if (accuracy < 0) accuracy = 0;
         if (accuracy > 100) accuracy = 100;
-
         double remaining = 100 - accuracy;
-
         return Stack(
           alignment: Alignment.center,
           children: [
@@ -41,7 +29,7 @@ class StorageGauge extends StatelessWidget {
                 sectionsSpace: 0,
                 centerSpaceRadius: 50,
                 sections: [
-                  /// ✅ Accuracy
+                
                   PieChartSectionData(
                     value: accuracy,
                     radius: 15,
@@ -49,7 +37,6 @@ class StorageGauge extends StatelessWidget {
                     color: Colors.orange,
                   ),
 
-                  /// الجزء الفاضي
                   PieChartSectionData(
                     value: remaining,
                     radius: 12,
@@ -57,7 +44,6 @@ class StorageGauge extends StatelessWidget {
                     color: Colors.grey.withOpacity(0.2),
                   ),
 
-                  /// إخفاء النص التاني من الدايرة
                   PieChartSectionData(
                     value: 100,
                     radius: 0,
@@ -68,7 +54,6 @@ class StorageGauge extends StatelessWidget {
               ),
             ),
 
-            /// 🔥 النص في النص
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [

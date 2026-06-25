@@ -19,9 +19,9 @@ class MainApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppThemes.lightTheme,
-      darkTheme: AppThemes.greyDarkTheme,
+      darkTheme: DeepSeaTheme.deepSeaTheme,
       themeMode: StorageService.getThemeMode(),
-      // home: OtpPage(),
+     
       initialRoute: "/onboardingpage",
       getPages: routes,
     );

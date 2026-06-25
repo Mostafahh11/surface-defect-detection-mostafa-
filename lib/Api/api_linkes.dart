@@ -11,14 +11,22 @@ class ApiLinkes {
   static const String sendphoneverification = "$auth/send-phone-verification";
   static const String verifyphon = '$auth/verify-phon';
   static const String sendemailverfication = '$auth/send-email-verification';
+  static const String sendresetpassword = '$auth/send-password-reset';
+  static const String verifyresetpassword = '$auth/verify-password-reset';
   static const String resendcode = '$auth/resend-code';
   static const String logout = '$auth/logout';
   static const String uploadavatar = '$baseurl/upload-avatar';
+  static const String profile = '$baseurl/profile';
   static const String updateusersetting = '$baseurl/profile/settings';
   //?=====================================================================
   static const String detectDefect = '$baseurl/scans/detect-defect';
   static const String allScans = '$baseurl/scans';
   static const String scanWithId = '$baseurl/scans/{id}';
   static const String deleteWithId = '$baseurl/scans/{id}';
-  static const String scanStatistics = '$baseurl/user-statistics/analytics';
+  // static const String scanStatistics = '$baseurl/user-statistics/analytics';
+  static const String flutterreport = '$baseurl/scans/{scan_id}/flutter-report';
+  static const String recentscanid = '$baseurl//user-statistics/recent_activity';
+
+
 }
+

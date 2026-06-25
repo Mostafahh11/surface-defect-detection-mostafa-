@@ -1,5 +1,4 @@
 import 'package:defectscan/Auth/widgets/widgets.dart';
-import 'package:defectscan/constants/colors/colors.dart';
 import 'package:defectscan/core/functions/validation/validation.dart';
 import 'package:defectscan/features/change_Mail_screens/verify_email.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +38,7 @@ class ChangeEmailScreen extends StatelessWidget {
                 Get.to(() => VerifyEmailScreen(email: emailController.text));
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Mycolors.org,
+                
                 minimumSize: const Size(double.infinity, 55),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),

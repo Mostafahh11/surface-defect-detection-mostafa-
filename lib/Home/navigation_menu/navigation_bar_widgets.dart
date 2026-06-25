@@ -19,20 +19,19 @@ Widget buildWebNavItem({
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
-          // مهم جداً عشان الـ Column ما ياخدش مساحة الشاشة كلها بالطول
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
               color: isSelected ? Colors.white : Colors.blueGrey,
-              size: 22, // كبّرنا الحجم شوية للموبايل
+              size: 22,
             ),
-            const SizedBox(height: 4), // تغيير لـ height لأننا جوه Column
+            const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
-                fontSize: 11, // حجم مناسب للـ Dock
+                fontSize: 11, 
                 color: isSelected ? Colors.white : Colors.blueGrey,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
               ),

@@ -1,6 +1,6 @@
 import 'package:defectscan/Auth/widgets/widgets.dart';
-import 'package:defectscan/Terms%20and%20Conditions/Text.dart';
-import 'package:defectscan/controller/Terms%20and%20Conditions/terms_cont.dart';
+import 'package:defectscan/Terms and Conditions/Text.dart';
+import 'package:defectscan/controller/Terms and Conditions/terms_cont.dart';
 import 'package:defectscan/controller/signup_cont.dart/signup_cont.dart';
 import 'package:defectscan/core/functions/validation/validation.dart';
 import 'package:flutter/material.dart';

@@ -8,13 +8,11 @@ class StatisticsChart extends StatelessWidget {
 
   const StatisticsChart({super.key, required this.controller});
 
-  /// 🔥 تحويل آمن لأي نوع لـ double
   double _toDouble(dynamic value) {
     if (value == null) return 0.0;
     return double.tryParse(value.toString()) ?? 0.0;
   }
 
-  /// 🔥 حساب النسبة بشكل آمن
   double _percent(double part, double total) {
     if (total == 0) return 0.0;
     return (part / total) * 100;
@@ -23,7 +21,7 @@ class StatisticsChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (controller.stats.isEmpty) {
+      if (controller.statistics.value == null) {
         return const Center(
           child: Text(
             "No statistics available",
@@ -31,16 +29,10 @@ class StatisticsChart extends StatelessWidget {
           ),
         );
       }
-
-      final stats = controller.stats;
-
-      final accuracy = _toDouble(stats['accuracy']);
-      final success = _toDouble(stats['successRate']);
-      final passed = _toDouble(stats['passedCount']);
-      final defects = _toDouble(stats['defectCount']);
-
+      final accuracy = controller.accuracy;
+      final passed = _toDouble(controller.passedCount);
+      final defects = _toDouble(controller.defectCount);
       final total = passed + defects;
-
       final passedPercent = _percent(passed, total);
       final defectPercent = _percent(defects, total);
 
@@ -68,7 +60,6 @@ class StatisticsChart extends StatelessWidget {
 
             borderData: FlBorderData(show: false),
 
-            /// 🔥 Tooltip
             lineTouchData: LineTouchData(
               touchTooltipData: LineTouchTooltipData(
                 getTooltipColor: (_) => Colors.black.withOpacity(0.8),
@@ -126,14 +117,12 @@ class StatisticsChart extends StatelessWidget {
               ),
             ),
 
-            /// 🔥 Line
             lineBarsData: [
               LineChartBarData(
                 spots: [
                   FlSpot(0, accuracy), // Accuracy
-                  FlSpot(1, success), // Success Rate
-                  FlSpot(2, passedPercent), // Passed %
-                  FlSpot(3, defectPercent), // Defects %
+                  FlSpot(1, passedPercent), // Passed %
+                  FlSpot(2, defectPercent), // Defects %
                 ],
                 isCurved: true,
                 curveSmoothness: 0.35,

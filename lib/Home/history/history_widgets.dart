@@ -35,17 +35,14 @@ class DefectCategoryList extends StatelessWidget {
 
   Widget _buildTile(item, {bool isLast = false}) {
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: isLast ? 0 : 32,
-      ), // مسافة ممتازة بين العناصر زي الصورة
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              /// Icon
               Container(
-                height: 60, // كبرت الأيقونة شوية عشان تظبط مع مقاس النص
+                height: 60,
                 width: 60,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
@@ -55,19 +52,18 @@ class DefectCategoryList extends StatelessWidget {
               ),
               const SizedBox(width: 16),
 
-              /// Title
+              
               Expanded(
                 child: Text(
                   item.name,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
-                    fontStyle: FontStyle.italic, // الخط المائل
+                    fontStyle: FontStyle.italic, 
                   ),
                 ),
               ),
 
-              /// Cases Label (Pill shape)
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -88,15 +84,14 @@ class DefectCategoryList extends StatelessWidget {
               ),
               const SizedBox(width: 16),
 
-              /// Percentage
               SizedBox(
-                width: 42, // تثبيت العرض عشان النسب تحت بعض تترتب صح
+                width: 42,
                 child: Text(
                   "${item.percentage.toStringAsFixed(0)}%",
                   textAlign: TextAlign.right,
                   style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
@@ -105,7 +100,6 @@ class DefectCategoryList extends StatelessWidget {
 
           const SizedBox(height: 14),
 
-          /// Progress bar
           Padding(
             padding: const EdgeInsets.only(left: 10, right: 0),
             child: ClipRRect(
@@ -128,17 +122,21 @@ class DefectCategoryList extends StatelessWidget {
       case "scratches":
         return Icons.remove;
       case "cracks":
-        return Icons.bolt;
+        return Icons.auto_awesome_motion_outlined;
+
       case "corrosion":
-        return Icons.water_drop_outlined;
+        return Icons.blur_on;
+
       case "pitting":
-        return Icons.hexagon_outlined;
+        return Icons.grid_3x3;
+
       case "rolled-in_scale":
-        return Icons.bug_report;
+        return Icons.texture;
       case "patches":
-        return Icons.bug_report;
+        return Icons.crop_square_sharp;
+
       default:
-        return Icons.bug_report;
+        return Icons.error_outline;
     }
   }
 }

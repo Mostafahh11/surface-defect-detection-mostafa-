@@ -1,8 +1,7 @@
-import 'package:defectscan/constants/colors/colors.dart';
 import 'package:defectscan/features/change_Mail_screens/email_page.dart';
 import 'package:defectscan/profile/account/account_widgets.dart';
 import 'package:defectscan/profile/change_number/change_number.dart';
-import 'package:defectscan/profile/remove%20account/remove_account.dart';
+import 'package:defectscan/profile/remove account/remove_account.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -113,7 +112,7 @@ class AccountScreen extends StatelessWidget {
         showLogoutDialog();
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: Mycolors.org,
+        backgroundColor: Colors.red,
         minimumSize: const Size(double.infinity, 55),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),

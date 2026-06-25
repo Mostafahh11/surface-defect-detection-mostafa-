@@ -11,14 +11,21 @@ class SignupCont extends GetxController {
   TextEditingController confirmpassword = TextEditingController();
   TextEditingController password = TextEditingController();
   TextEditingController phone = TextEditingController();
+
   bool locked1 = true;
   bool locked2 = true;
 
+  bool isLoading = false;
+
   GlobalKey<FormState> formState = GlobalKey();
+
   Future<void> registerUser() async {
     if (!(formState.currentState?.validate() ?? false)) {
       return;
     }
+
+    isLoading = true;
+    update();
 
     try {
       await ApiService.register(
@@ -28,44 +35,45 @@ class SignupCont extends GetxController {
         confirmPassword: confirmpassword.text.trim(),
         phone: phone.text.trim(),
       );
+
       await ApiService.sendEmailCode(email.text);
-      Get.toNamed('/otppage', arguments: {'email': email.text});
+
+      Get.offNamed('/otppage', arguments: {'email': email.text});
     } catch (e) {
+      String cleanMessage = e.toString().replaceAll('Exception: ', '').trim();
       Get.snackbar(
         "Error",
-        e.toString(),
-        backgroundColor: Colors.red,
+        cleanMessage,
+        backgroundColor: Colors.redAccent,
         colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
       );
+    } finally {
+      isLoading = false;
+      update();
     }
   }
 
-  bool confirmpasswords() {
-    if (password.text == confirmpassword.text) {
-      return true;
-    } else {
-      return false;
-    }
-  }
+  bool confirmpasswords() => password.text == confirmpassword.text;
 
-  unlockeye() {
+  void unlockeye() {
     locked1 = !locked1;
     update();
   }
 
-  unlockeye2() {
+  void unlockeye2() {
     locked2 = !locked2;
     update();
   }
 
   @override
-  void dispose() {
+  void onClose() {
     firstname.dispose();
     lastname.dispose();
     email.dispose();
     password.dispose();
     confirmpassword.dispose();
-
-    super.dispose();
+    phone.dispose(); 
+    super.onClose();
   }
 }

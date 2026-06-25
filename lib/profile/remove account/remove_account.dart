@@ -1,5 +1,4 @@
-import 'package:defectscan/constants/colors/colors.dart';
-import 'package:defectscan/profile/remove%20account/account_removed.dart';
+import 'package:defectscan/profile/remove account/account_removed.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -20,7 +19,7 @@ class RemoveAccountPage extends StatelessWidget {
               Get.to(() => AccountRemovedPage());
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Mycolors.org,
+              // backgroundColor: Mycolors.org,
               minimumSize: const Size(double.infinity, 55),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -69,7 +68,7 @@ class RemoveAccountPage extends StatelessWidget {
                 showConfirmDialog();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Mycolors.org,
+                // backgroundColor: Mycolors.org,
                 minimumSize: const Size(double.infinity, 55),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
